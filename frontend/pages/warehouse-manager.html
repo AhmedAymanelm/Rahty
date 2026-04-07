@@ -1,0 +1,57 @@
+<!-- WAREHOUSE MANAGER -->
+<div id="p-warehouse-manager" class="pg">
+  <div class="ph"><h2>🏬 مسؤول المستودع</h2></div>
+
+  <div class="card" style="border-color:var(--gold);">
+    <div class="ct">ℹ️ طريقة الاستخدام</div>
+    <div class="dim" style="line-height:1.9;">
+      1) هذه الصفحة للمراجعة فقط (اعتماد/رفض طلبات المستودع).<br>
+      2) الأزرار تظهر بجانب أي طلب حالته <strong>معلقة</strong> فقط.<br>
+      3) إنشاء الطلب يتم من حساب المشرف عبر صفحة "المستودع".
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="fgrid" style="margin-bottom:10px;align-items:end;">
+      <div class="fg" id="wm-hotel-wrap" style="display:none;">
+        <label>الفندق</label>
+        <select id="wm-hotel" onchange="loadWarehouseManagerPage()">
+          <option value="all">كل الفنادق</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>المشرف</label>
+        <select id="wm-requester" onchange="loadWarehouseManagerPage()">
+          <option value="all">كل المشرفين</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>الصنف</label>
+        <select id="wm-item" onchange="loadWarehouseManagerPage()">
+          <option value="all">كل الأصناف</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>الحالة</label>
+        <select id="wm-status" onchange="loadWarehouseManagerPage()">
+          <option value="all" selected>الكل</option>
+          <option value="pending">معلقة</option>
+          <option value="approved">معتمدة</option>
+          <option value="rejected">مرفوضة</option>
+        </select>
+      </div>
+      <div class="fg"><label>بحث</label><input type="text" id="wm-search" placeholder="صنف/ملاحظة" oninput="loadWarehouseManagerPage()"></div>
+      <div class="fg"><label>من تاريخ</label><input type="date" id="wm-from" onchange="loadWarehouseManagerPage()"></div>
+      <div class="fg"><label>إلى تاريخ</label><input type="date" id="wm-to" onchange="loadWarehouseManagerPage()"></div>
+      <button class="btn bo" onclick="resetWarehouseManagerFilters()">🧹 تهيئة الفلاتر</button>
+      <button class="btn bb" onclick="loadWarehouseManagerPage()">🔄 تحديث</button>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>التاريخ</th><th>المشرف</th><th>الصنف</th><th>الطلب</th><th>المعتمد</th><th>الحالة</th><th>مراجعة</th></tr></thead>
+      <tbody id="wm-body">
+        <tr><td colspan="7" style="text-align:center;color:var(--dim)">جاري التحميل...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

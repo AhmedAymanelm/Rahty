@@ -1,0 +1,32 @@
+<!-- MAINTENANCE JOB CLOSE -->
+<div id="p-mn-job" class="pg">
+  <div class="ph flex-b">
+    <div>
+      <h2 id="mn-job-title">🔧 معالجة بلاغ صيانة</h2>
+      <p id="mn-job-subtitle">قم بتحديث حالة العمل ورفع إثبات ما بعد الإصلاح</p>
+    </div>
+    <button class="btn bb bsm" onclick="showPg('p-mn-tasks')">← رجوع</button>
+  </div>
+  <div class="card"><div class="ct">📦 طلب قطعة غيار (إن لزم)</div>
+    <div class="fgrid">
+      <div class="fg"><label>اسم/وصف القطعة</label><input type="text" id="mn-parts-name" placeholder="مثال: وحدة ضاغط"></div>
+      <div class="fg"><label>رقم الغرفة</label><input type="text" id="mn-room-number" value="-" readonly></div>
+    </div>
+    <div class="fg"><label>تشخيص أولي</label><textarea id="mn-diagnosis" placeholder="مثال: تسريب فريون + تلف في المضخة"></textarea></div>
+    <div class="flex-g">
+      <button class="btn bb bsm" id="mn-start-work-btn" onclick="startMaintenanceWork()">▶️ بدء العمل</button>
+      <button class="btn bo bsm" id="mn-request-parts-btn" onclick="requestMaintenanceParts()">📦 طلب من المستودع</button>
+    </div>
+  </div>
+  <div class="card"><div class="ct">✅ إغلاق — صورة بعد الإصلاح</div>
+    <div class="fg"><label>ما الذي تم إصلاحه</label><textarea id="mn-repair-notes" placeholder="اشرح بالتفصيل..."></textarea></div>
+    <div class="fg"><label>صورة بعد الإصلاح (إلزامي)</label>
+      <div class="upa" onclick="this.querySelector('input').click()">
+        <span class="ui">📷</span>صوّر الغرفة بعد الإصلاح
+        <input type="file" id="mn-after-input" accept="image/*" style="display:none" onchange="prevPhoto(this,'mn-after')">
+      </div>
+      <div class="photo-row" id="mn-after"></div>
+    </div>
+    <button class="btn bg" id="mn-close-btn" onclick="closeMnJob()">✅ إغلاق وإرسال للمشرف</button>
+  </div>
+</div>

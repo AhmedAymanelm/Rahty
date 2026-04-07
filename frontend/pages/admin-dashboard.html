@@ -1,0 +1,106 @@
+<!-- ADMIN DASHBOARD -->
+<div id="p-admin-dash" class="pg">
+  <div class="ph">
+    <div><h2>📊 لوحة قيادة المجموعة</h2><p id="today-date"></p></div>
+    <button class="btn bg" onclick="openTaskModal()">+ مهمة جديدة</button>
+  </div>
+  <div class="hotel-list-wrap">
+    <div class="dim" style="font-size:.82rem;margin-bottom:6px;">قائمة الفنادق</div>
+    <div class="hotel-pills hotel-list" id="admin-hotel-filter">
+      <div class="dim" id="admin-hotel-filter-loading" style="font-size:.8rem">جاري تحميل الفنادق...</div>
+    </div>
+  </div>
+  <div class="card" id="ad-staff-panel">
+    <div class="ct">👥 موظفو الفندق المختار</div>
+    <div class="dim" id="ad-staff-meta">اختر فندقًا من القائمة لعرض الموظفين.</div>
+    <div id="ad-hotel-staff-list" class="ad-staff-list"></div>
+  </div>
+  <div class="card room-create-panel" id="ad-room-create-panel" style="display:none">
+    <div class="ct">➕ إضافة غرفة جديدة</div>
+    <form id="ad-room-create-form" class="fgrid g3">
+      <div class="fg"><label>رقم الغرفة</label><input type="text" id="ad-room-number" placeholder="مثال: 410" required></div>
+      <div class="fg"><label>نوع الغرفة</label><select id="ad-room-type"><option value="Single">Single</option><option value="Double">Double</option><option value="Suite">Suite</option></select></div>
+      <div class="fg"><label>الحالة الابتدائية</label><select id="ad-room-status"><option value="ready">جاهزة</option><option value="dirty">متسخة</option><option value="occupied">مشغولة</option><option value="maintenance">صيانة</option></select></div>
+      <div class="fg"><label>الفندق</label><select id="ad-room-hotel" required><option value="">اختر الفندق</option></select></div>
+      <div class="fg" style="align-self:end"><button type="submit" class="btn bg" id="ad-room-submit">💾 إضافة الغرفة</button></div>
+    </form>
+  </div>
+  <div class="card" id="ad-room-price-panel" style="display:none">
+    <div class="ct">🏷️ السعر المرجعي للغرف</div>
+    <div class="fgrid g3">
+      <div class="fg">
+        <label>نوع الغرفة</label>
+        <select id="ad-price-room-type">
+          <option value="غرفة عادية">غرفة عادية</option>
+          <option value="ديلوكس">ديلوكس</option>
+          <option value="جناح">جناح</option>
+          <option value="غرفة عائلية">غرفة عائلية</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>السعر المرجعي (ريال)</label>
+        <input type="number" id="ad-price-value" min="1" step="1" placeholder="450">
+      </div>
+      <div class="fg" style="align-self:end">
+        <button class="btn bg" id="ad-price-save-btn" onclick="saveDashboardOurPrice('admin')">💾 حفظ السعر</button>
+      </div>
+    </div>
+    <div class="dim" id="ad-price-meta">اختر نوع الغرفة لتحميل السعر الحالي.</div>
+  </div>
+  <div class="sg">
+    <div class="sc" style="--ac:var(--red)"><div class="sv" id="ad-fault-total">0</div><div class="sl">إجمالي الأعطال</div><div class="si">🚨</div></div>
+    <div class="sc" style="--ac:var(--orange)"><div class="sv" id="ad-fault-open">0</div><div class="sl">الأعطال المفتوحة</div><div class="si">⚙️</div></div>
+    <div class="sc" style="--ac:var(--green)"><div class="sv" id="ad-ready-rooms">0</div><div class="sl">غرف جاهزة</div><div class="si">✅</div></div>
+    <div class="sc" style="--ac:var(--blue)"><div class="sv" id="ad-uptime">0%</div><div class="sl">Uptime الغرف</div><div class="si">🏠</div></div>
+    <div class="sc" style="--ac:var(--gold)"><div class="sv" id="ad-fast-tech">-</div><div class="sl">أسرع فني</div><div class="si">🏆</div></div>
+    <div class="sc" style="--ac:var(--purple)"><div class="sv" id="ad-slowest-hotel">-</div><div class="sl">أبطأ فندق</div><div class="si">🏨</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">🏨 جاهزية الفنادق</div>
+    <div class="tw"><table>
+      <thead><tr><th>الفندق</th><th>غرف جاهزة</th><th>إجمالي الغرف</th><th>Uptime</th><th>الحالة</th></tr></thead>
+      <tbody id="ad-hotels-body">
+        <tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري تحميل البيانات...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <div class="ct">⏱️ سياسة الحضور</div>
+    <div class="fgrid g4" id="ad-att-policy-panel" style="display:none">
+      <div class="fg">
+        <label>بداية نافذة الحضور</label>
+        <input type="time" id="ad-att-start" value="07:00">
+      </div>
+      <div class="fg">
+        <label>نهاية نافذة الحضور</label>
+        <input type="time" id="ad-att-end" value="10:00">
+      </div>
+      <div class="fg">
+        <label>نهاية الدوام</label>
+        <input type="time" id="ad-att-shift-end" value="19:00">
+      </div>
+      <div class="fg">
+        <label>وضع التصدير الافتراضي</label>
+        <select id="ad-att-export-mode">
+          <option value="weekly">أسبوعي</option>
+          <option value="monthly">شهري</option>
+        </select>
+      </div>
+      <div class="policy-actions">
+        <button class="btn bg policy-action-save" id="ad-att-policy-save-btn">حفظ السياسة</button>
+        <button class="btn policy-action-weekly" id="ad-att-export-weekly-btn">تصدير أسبوعي Excel</button>
+        <button class="btn policy-action-monthly" id="ad-att-export-monthly-btn">تصدير شهري Excel</button>
+      </div>
+    </div>
+    <div class="dim policy-meta" id="ad-att-policy-meta">سيتم تحميل سياسة الحضور للفندق المختار.</div>
+  </div>
+  <div class="card">
+    <div class="ct">👥 حضور جميع الأقسام (الفندق المختار)</div>
+    <div class="tw"><table>
+      <thead><tr><th>الموظف</th><th>الدور</th><th>وقت الحضور</th><th>الموقع</th><th>الحالة</th><th>تنبيه</th></tr></thead>
+      <tbody id="ad-attendance-body">
+        <tr><td colspan="6" style="text-align:center;color:var(--dim)">جاري تحميل الحضور...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

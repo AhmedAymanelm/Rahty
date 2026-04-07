@@ -1,0 +1,189 @@
+/* ==========================================
+   راحتي — Sidebar Styles
+   ========================================== */
+
+#appScreen {
+  flex-direction: row;
+}
+
+.sb {
+  width: 245px;
+  min-height: 100vh;
+  background: var(--dark2);
+  border-left: 1px solid rgba(255,255,255,.05);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+/* Sidebar Header */
+.sb-head {
+  padding: 18px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  text-align: center;
+}
+.sb-head .logo {
+  color: var(--gold);
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+.sb-head .logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.sb-head .logo-wrap .logo-img {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(201,168,76,.35);
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+.sb-head .sub {
+  color: var(--dim);
+  font-size: .7rem;
+  margin-top: 3px;
+}
+
+/* User Card */
+.user-card {
+  margin: 12px;
+  padding: 12px;
+  background: var(--dark3);
+  border-radius: 10px;
+  border: 1px solid rgba(201,168,76,.12);
+}
+.uc-role {
+  font-size: .68rem;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.uc-name {
+  font-size: .9rem;
+  font-weight: 700;
+}
+.uc-hotel {
+  font-size: .72rem;
+  color: var(--dim);
+  margin-top: 2px;
+}
+
+/* Navigation */
+.nav-sec {
+  padding: 8px 14px 4px;
+}
+.nav-sec-t {
+  font-size: .62rem;
+  color: var(--dim);
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  padding-right: 4px;
+}
+
+.ni {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--dim);
+  font-size: .85rem;
+  margin-bottom: 2px;
+  transition: .18s;
+  position: relative;
+}
+.ni:hover {
+  background: rgba(255,255,255,.03);
+  color: var(--text);
+}
+.ni.act {
+  background: rgba(201,168,76,.11);
+  color: var(--gold);
+}
+.ni .ico {
+  font-size: .95rem;
+  width: 18px;
+  text-align: center;
+}
+.ni .nbadge {
+  margin-right: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: .58rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+
+/* Footer */
+.sb-foot {
+  margin-top: auto;
+  padding: 14px;
+}
+.btn-out {
+  width: 100%;
+  padding: 9px;
+  background: rgba(231,76,60,.08);
+  border: 1px solid rgba(231,76,60,.25);
+  border-radius: 10px;
+  color: var(--red);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .82rem;
+  cursor: pointer;
+  transition: .2s;
+}
+.btn-out:hover {
+  background: rgba(231,76,60,.18);
+}
+
+/* Mobile Header */
+.mob-head {
+  display: none;
+  background: var(--dark2);
+  padding: 13px 15px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.hamb {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.mob-brand {
+  color: var(--gold);
+  font-weight: 900;
+  font-size: .95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.mob-brand img {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(201,168,76,.35);
+}
+
+/* Sidebar Overlay (Mobile) */
+.sb-ov {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 98;
+}

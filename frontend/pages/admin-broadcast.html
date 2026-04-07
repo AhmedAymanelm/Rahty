@@ -1,0 +1,23 @@
+<!-- ADMIN BROADCAST -->
+<div id="p-admin-bc" class="pg">
+  <div class="ph"><h2>📢 التعاميم الإدارية</h2></div>
+  <div class="card"><div class="ct">✍️ إرسال تعميم جديد</div>
+    <div class="fgrid">
+      <div class="fg"><label>الموجَّه إلى</label>
+        <select id="bc-target-role"><option value="all">جميع الموظفين</option><option value="supervisor">مشرفو الفنادق</option><option value="superfv">سوبر فايزر</option><option value="maintenance">فنيو الصيانة</option><option value="cleaner">عمال النظافة</option><option value="reception">موظفو الاستقبال</option><option value="accountant">المحاسبون</option></select></div>
+      <div class="fg"><label>الفندق</label>
+        <select id="bc-hotel-id"><option value="">جميع الفنادق</option></select></div>
+    </div>
+    <div class="fg"><label>عنوان التعميم</label><input type="text" id="bc-title" placeholder="مثال: تحديث إجراءات السلامة"></div>
+    <div class="fg"><label>نص التعميم</label><textarea id="bc-message" placeholder="اكتب التعميم..."></textarea></div>
+    <button class="btn bg" id="bc-send-btn" onclick="sendBC()">📢 إرسال التعميم</button>
+  </div>
+  <div class="card"><div class="ct">📋 سجل التعاميم</div>
+    <div class="tw"><table>
+      <thead><tr><th>التعميم</th><th>الموجَّه</th><th>الفنادق</th><th>التاريخ</th><th>قرأه</th></tr></thead>
+      <tbody id="bc-history-body">
+        <tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري تحميل السجل...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

@@ -1,0 +1,116 @@
+/* ==========================================
+   راحتي — Modals & Overlays
+   ========================================== */
+
+/* Notification Overlay */
+.nov {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+.nov.show {
+  display: flex;
+}
+.nbox {
+  background: var(--dark2);
+  border: 1px solid var(--gold);
+  border-radius: 18px;
+  padding: 28px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(201,168,76,.3);
+  animation: pop .3s ease;
+}
+.nbox .ni2 {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+.nbox h3 {
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.nbox p {
+  color: var(--dim);
+  font-size: .87rem;
+  line-height: 1.6;
+}
+
+/* Modal Overlay */
+.modal-ov {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-ov.show {
+  display: flex;
+}
+.modal-box {
+  background: var(--dark2);
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: 18px;
+  padding: 24px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: pop .25s ease;
+}
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.modal-head h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: .2s;
+}
+.modal-close:hover {
+  color: var(--red);
+}
+
+/* Image Lightbox */
+.img-lightbox-box {
+  max-width: min(92vw, 980px);
+  width: 100%;
+  max-height: 90vh;
+  background: rgba(10,16,25,.85);
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(4px);
+}
+
+.img-lightbox-wrap {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+}
+
+.img-lightbox-photo {
+  max-width: 100%;
+  max-height: calc(90vh - 110px);
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  object-fit: contain;
+  background: rgba(0,0,0,.2);
+}

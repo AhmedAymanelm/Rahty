@@ -1,0 +1,78 @@
+<div class="pg" id="p-users-mgmt">
+  <div class="pg-head flex-sb mt10">
+    <div>
+      <h2>👥 إدارة الموظفين والصلاحيات</h2>
+      <p style="color:var(--dim);font-size:.85rem;margin-top:4px;">إدارة وحوكمة حسابات الموظفين ومديري الفروع</p>
+    </div>
+    <button class="btn bg" onclick="openAddUserModal()">+ إضافة موظف جديد</button>
+  </div>
+
+  <div class="card mt10">
+    <div class="ct">🔎 فلترة الموظفين</div>
+    <div class="fgrid" style="margin-top:10px">
+      <div class="fg"><label>بحث بالاسم أو المستخدم</label><input type="text" id="users-search" placeholder="اكتب للبحث..." oninput="onUsersFilterChanged()"></div>
+      <div class="fg"><label>الدور</label>
+        <select id="users-role-filter" onchange="onUsersFilterChanged()">
+          <option value="all">كل الأدوار</option>
+          <option value="admin">إدارة</option>
+          <option value="supervisor">مشرف</option>
+          <option value="superfv">سوبر فايزر</option>
+          <option value="cleaner">نظافة</option>
+          <option value="maintenance">صيانة</option>
+          <option value="reception">استقبال</option>
+          <option value="accountant">محاسب</option>
+        </select>
+      </div>
+      <div class="fg"><label>الفندق</label><select id="users-hotel-filter" onchange="onUsersFilterChanged()"><option value="">اختر الفندق</option></select></div>
+      <div class="fg"><label>الحالة</label>
+        <select id="users-active-filter" onchange="onUsersFilterChanged()">
+          <option value="all">الكل</option>
+          <option value="active">نشط</option>
+          <option value="inactive">موقوف</option>
+        </select>
+      </div>
+      <div class="fg"><label>الترتيب</label>
+        <select id="users-sort" onchange="onUsersFilterChanged()">
+          <option value="name_asc">الاسم (أ-ي)</option>
+          <option value="name_desc">الاسم (ي-أ)</option>
+          <option value="role">الدور</option>
+          <option value="hotel">الفندق</option>
+          <option value="status">الحالة</option>
+        </select>
+      </div>
+      <div class="fg"><label>عدد الصفوف</label>
+        <select id="users-page-size" onchange="onUsersPageSizeChanged()">
+          <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <div class="table-card mt20">
+    <table class="data-table" id="users-table">
+      <thead>
+        <tr>
+          <th>الاسم</th>
+          <th>اسم المستخدم</th>
+          <th>الدور الوظيفي</th>
+          <th>الفندق التابع له</th>
+          <th>الحالة</th>
+          <th>إجراءات</th>
+        </tr>
+      </thead>
+      <tbody id="users-tbody">
+        <tr><td colspan="6" style="text-align:center;color:var(--dim)">جاري تحميل الموظفين...</td></tr>
+      </tbody>
+    </table>
+    <div class="flex-sb" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+      <div id="users-page-info" class="dim" style="font-size:.82rem">-</div>
+      <div class="flex-g">
+        <button class="btn bb bsm" id="users-prev-btn" onclick="previousUsersPage()">السابق</button>
+        <button class="btn bb bsm" id="users-next-btn" onclick="nextUsersPage()">التالي</button>
+      </div>
+    </div>
+  </div>
+</div>

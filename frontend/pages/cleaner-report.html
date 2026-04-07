@@ -1,0 +1,18 @@
+<!-- CLEANER REPORT -->
+<div id="p-cl-report" class="pg">
+  <div class="ph flex-b">
+    <div><h2>📋 فحص غرفة <span id="cl-room-num">303</span></h2><p>أجب على كل فحص بدقة</p></div>
+    <button class="btn bb bsm" onclick="showPg('p-cl-rooms')">← رجوع</button>
+  </div>
+  <div class="card" id="chk-list">
+    <div class="ct">✅ قائمة الفحص (42 بند)</div>
+  </div>
+  <div class="card" id="issue-summary" style="display:none">
+    <div class="ct" style="color:var(--red)">🚨 ملخص المشاكل المكتشفة</div>
+    <div id="issue-list"></div>
+    <hr class="sep">
+  </div>
+  <div class="card">
+    <button class="btn bg" style="width:100%;padding:14px" onclick="doneRoom()">✅ إغلاق التقرير — الغرفة نظيفة</button>
+  </div>
+</div>

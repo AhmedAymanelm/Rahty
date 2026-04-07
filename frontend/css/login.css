@@ -1,0 +1,197 @@
+/* ==========================================
+   راحتي — Login Screen Styles
+   ========================================== */
+
+#loginScreen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 20% 50%, #0f1e14, transparent),
+    radial-gradient(ellipse at 80% 20%, #0e1520, transparent),
+    var(--dark);
+  position: relative;
+}
+
+#loginScreen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c9a84c' fill-opacity='0.03'%3E%3Cpath d='M0 0h40v40H0zm40 40h40v40H40z'/%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.login-wrap {
+  position: relative;
+  z-index: 1;
+  width: 90%;
+  max-width: 480px;
+}
+
+/* Brand */
+.login-brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-brand .b-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 24px rgba(201, 168, 76, .6));
+}
+
+.login-brand .brand-logo {
+  width: min(38vw, 164px);
+  height: auto;
+  display: block;
+  margin: 0 auto 10px;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .35));
+  border-radius: 14px;
+}
+
+.login-brand h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.login-brand p {
+  color: var(--dim);
+  font-size: .85rem;
+  margin-top: 4px;
+}
+
+/* Login Box */
+.login-box {
+  background: var(--dark2);
+  border: 1px solid rgba(201, 168, 76, .15);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(201, 168, 76, .08);
+}
+
+.login-box h2 {
+  color: var(--dim);
+  font-size: .95rem;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+/* Role Grid */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.rb {
+  background: var(--dark3);
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s;
+  color: var(--dim);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .8rem;
+}
+
+.rb .ri {
+  font-size: 1.4rem;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.rb:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201, 168, 76, .06);
+}
+
+.rb.sel {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, .12);
+  color: var(--gold);
+  box-shadow: 0 0 16px rgba(201, 168, 76, .2);
+}
+
+/* Input */
+.inp {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--dark3);
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .2s;
+  margin-bottom: 12px;
+}
+
+.inp:focus {
+  border-color: var(--gold);
+}
+
+/* Login Button */
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--gold-d), var(--gold));
+  border: none;
+  border-radius: 10px;
+  color: #07100a;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: .2s;
+  letter-spacing: 1px;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(201, 168, 76, .4);
+}
+
+/* Hotel Selection */
+.hotel-sel {
+  display: none;
+  margin-bottom: 15px;
+}
+
+.hotel-sel label {
+  display: block;
+  font-size: .82rem;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+
+/* Custom Login Error Message */
+.login-error {
+  display: none;
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  color: #ff6b6b;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: .85rem;
+  text-align: center;
+  animation: shake 0.4s ease-in-out;
+}
+
+.login-error.show {
+  display: block;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}

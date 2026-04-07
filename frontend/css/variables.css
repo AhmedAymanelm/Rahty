@@ -1,0 +1,30 @@
+/* ==========================================
+   راحتي — CSS Variables (Design Tokens)
+   ========================================== */
+
+:root {
+  /* Gold Palette */
+  --gold: #c9a84c;
+  --gold-l: #e8c96a;
+  --gold-d: #9a7530;
+
+  /* Dark Palette */
+  --dark: #090d13;
+  --dark2: #101720;
+  --dark3: #18222f;
+  --dark4: #1f2d3d;
+
+  /* Text */
+  --text: #e8edf5;
+  --dim: #6a7d95;
+
+  /* Status Colors */
+  --green: #27ae60;
+  --red: #e74c3c;
+  --blue: #2980b9;
+  --orange: #e67e22;
+  --purple: #8e44ad;
+
+  /* Spacing & Radius */
+  --r: 12px;
+}

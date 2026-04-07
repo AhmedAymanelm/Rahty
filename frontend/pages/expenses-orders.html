@@ -1,0 +1,57 @@
+<!-- EXPENSE ORDERS -->
+<div id="p-expense-orders" class="pg">
+  <div class="ph"><h2>🧾 سندات الشراء والمصروفات</h2></div>
+
+  <div class="card" id="po-create-card" style="display:none;">
+    <div class="ct">➕ إنشاء سند شراء</div>
+    <div class="fgrid">
+      <div class="fg"><label>العنوان</label><input id="po-title" type="text" placeholder="مثال: شراء مناشف"></div>
+      <div class="fg"><label>المبلغ</label><input id="po-amount" type="number" min="0" step="0.01" placeholder="0"></div>
+      <div class="fg"><label>التاريخ</label><input id="po-date" type="date"></div>
+      <div class="fg" id="po-hotel-wrap" style="display:none;"><label>الفندق</label><select id="po-hotel"><option value="">اختر الفندق</option></select></div>
+    </div>
+    <div class="fg"><label>الوصف</label><textarea id="po-desc" placeholder="تفاصيل الشراء المطلوبة"></textarea></div>
+    <button class="btn bg" onclick="createPurchaseOrder()">📤 إرسال السند للمحاسب</button>
+  </div>
+
+  <div class="sg">
+    <div class="sc" style="--ac:var(--gold)"><div class="sv" id="po-total-count">0</div><div class="sl">عدد السندات</div></div>
+    <div class="sc" style="--ac:var(--blue)"><div class="sv" id="po-total-amount">0</div><div class="sl">إجمالي المبالغ</div></div>
+    <div class="sc" style="--ac:var(--green)"><div class="sv" id="po-approved-count">0</div><div class="sl">معتمد</div></div>
+    <div class="sc" style="--ac:var(--red)"><div class="sv" id="po-rejected-count">0</div><div class="sl">مرفوض</div></div>
+  </div>
+
+  <div class="card">
+    <div class="fgrid" style="margin-bottom:10px;align-items:end;">
+      <div class="fg" id="po-filter-hotel-wrap" style="display:none;">
+        <label>الفندق</label>
+        <select id="po-filter-hotel" onchange="loadExpenseOrdersPage()">
+          <option value="all">كل الفنادق</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>الحالة</label>
+        <select id="po-status-filter" onchange="loadExpenseOrdersPage()">
+          <option value="all">الكل</option>
+          <option value="pending">معلق</option>
+          <option value="approved">معتمد</option>
+          <option value="rejected">مرفوض</option>
+        </select>
+      </div>
+      <div class="fg"><label>بحث</label><input type="text" id="po-search" placeholder="عنوان/وصف/ملاحظة" oninput="loadExpenseOrdersPage()"></div>
+      <div class="fg"><label>حد أدنى مبلغ</label><input type="number" id="po-min-amount" min="0" step="0.01" onchange="loadExpenseOrdersPage()"></div>
+      <div class="fg"><label>حد أعلى مبلغ</label><input type="number" id="po-max-amount" min="0" step="0.01" onchange="loadExpenseOrdersPage()"></div>
+      <div class="fg"><label>من تاريخ</label><input type="date" id="po-from-date" onchange="loadExpenseOrdersPage()"></div>
+      <div class="fg"><label>إلى تاريخ</label><input type="date" id="po-to-date" onchange="loadExpenseOrdersPage()"></div>
+      <button class="btn bgr" onclick="exportCombinedFinanceReport()">⬇️ تقرير موحد CSV</button>
+      <button class="btn bb" onclick="loadExpenseOrdersPage()">🔄 تحديث</button>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>التاريخ</th><th>الفندق</th><th>الطالب</th><th>العنوان</th><th>المبلغ</th><th>الحالة</th><th>سبب/ملاحظة</th><th>إجراء</th></tr></thead>
+      <tbody id="po-body">
+        <tr><td colspan="8" style="text-align:center;color:var(--dim)">جاري تحميل البيانات...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

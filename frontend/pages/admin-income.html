@@ -1,0 +1,43 @@
+<!-- ADMIN INCOME -->
+<div id="p-admin-income" class="pg">
+  <div class="ph"><h2>💰 تقارير الدخل</h2></div>
+
+  <div class="card">
+    <div class="fgrid" style="margin-bottom:10px;align-items:end;">
+      <div class="fg">
+        <label>النطاق</label>
+        <select id="inc-range" onchange="loadAdminIncomePage()">
+          <option value="today">اليوم</option>
+          <option value="week">الأسبوع</option>
+          <option value="month" selected>الشهر</option>
+          <option value="year">السنة</option>
+        </select>
+      </div>
+      <div class="fg" id="inc-hotel-wrap" style="display:none;">
+        <label>الفندق</label>
+        <select id="inc-hotel" onchange="loadAdminIncomePage()">
+          <option value="all">كل الفنادق</option>
+        </select>
+      </div>
+      <button class="btn bgr" onclick="downloadIncomeExcel()">⬇️ تصدير Excel</button>
+      <button class="btn bb" onclick="loadAdminIncomePage()">🔄 تحديث</button>
+    </div>
+  </div>
+
+  <div class="sg">
+    <div class="sc" style="--ac:var(--gold)"><div class="sv" id="inc-total-today">0</div><div class="sl">إجمالي اليوم</div></div>
+    <div class="sc" style="--ac:var(--blue)"><div class="sv" id="inc-total-week">0</div><div class="sl">إجمالي الأسبوع</div></div>
+    <div class="sc" style="--ac:var(--green)"><div class="sv" id="inc-total-month">0</div><div class="sl">إجمالي الشهر</div></div>
+    <div class="sc" style="--ac:var(--orange)"><div class="sv" id="inc-total-year">0</div><div class="sl">إجمالي السنة</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">👥 دخل كل موظف ضمن النطاق المحدد</div>
+    <div class="tw"><table>
+      <thead><tr><th>الموظف</th><th>الفندق</th><th>عدد التقارير</th><th>إجمالي الدخل</th></tr></thead>
+      <tbody id="inc-employee-body">
+        <tr><td colspan="4" style="text-align:center;color:var(--dim)">جاري تحميل البيانات...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

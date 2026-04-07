@@ -1,0 +1,29 @@
+<!-- SUPERVISOR WAREHOUSE -->
+<div id="p-supervisor-warehouse" class="pg">
+  <div class="ph"><h2>📦 المستودع — طلب وصرف</h2></div>
+
+  <div class="card">
+    <div class="ct">📝 طلب جديد من المستودع</div>
+    <div class="fgrid">
+      <div class="fg"><label>الصنف</label><select id="sw-item"></select></div>
+      <div class="fg"><label>الكمية المطلوبة</label><input id="sw-qty" type="number" min="1" value="1"></div>
+    </div>
+    <div class="fg"><label>ملاحظة (اختياري)</label><textarea id="sw-note" placeholder="سبب الطلب..."></textarea></div>
+    <button class="btn bg" onclick="createWarehouseRequest()">📤 إرسال الطلب</button>
+  </div>
+
+  <div class="card">
+    <div class="ct">📅 سجل السحب الخاص بي</div>
+    <div class="fgrid" style="margin-bottom:10px;align-items:end;">
+      <div class="fg"><label>من تاريخ</label><input type="date" id="sw-from" onchange="loadSupervisorWarehousePage()"></div>
+      <div class="fg"><label>إلى تاريخ</label><input type="date" id="sw-to" onchange="loadSupervisorWarehousePage()"></div>
+      <button class="btn bb" onclick="loadSupervisorWarehousePage()">🔄 تحديث</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>التاريخ</th><th>الصنف</th><th>الطلب</th><th>المعتمد</th><th>الحالة</th><th>ملاحظة</th></tr></thead>
+      <tbody id="sw-body">
+        <tr><td colspan="6" style="text-align:center;color:var(--dim)">جاري التحميل...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

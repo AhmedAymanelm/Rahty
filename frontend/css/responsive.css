@@ -1,0 +1,48 @@
+/* ==========================================
+   راحتي — Responsive / Mobile Styles
+   ========================================== */
+
+@media (max-width: 768px) {
+  #appScreen {
+    flex-direction: column;
+  }
+
+  .sb {
+    position: fixed;
+    right: -245px;
+    top: 0;
+    height: 100%;
+    z-index: 99;
+    transition: right .3s;
+  }
+  .sb.open {
+    right: 0;
+  }
+
+  .sb-ov.show {
+    display: block;
+  }
+
+  .mob-head {
+    display: flex;
+  }
+
+  .pg {
+    padding: 14px;
+  }
+
+  .sg {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fgrid {
+    grid-template-columns: 1fr;
+  }
+  .fgrid.g3 {
+    grid-template-columns: 1fr;
+  }
+
+  .role-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

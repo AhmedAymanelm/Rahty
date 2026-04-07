@@ -1,0 +1,28 @@
+<!-- ADMIN TASKS -->
+<div id="p-admin-tasks" class="pg">
+  <div class="ph">
+    <div><h2>📌 إدارة المهام</h2><p>إصدار ومتابعة مهام جميع الفنادق</p></div>
+    <button class="btn bg" onclick="openTaskModal()">+ مهمة جديدة</button>
+  </div>
+  <div class="task-kpi-strip">
+    <div class="task-kpi">
+      <div class="task-kpi-label">إجمالي المهام</div>
+      <div class="task-kpi-val" id="tk-count-all">0</div>
+    </div>
+    <div class="task-kpi">
+      <div class="task-kpi-label">بانتظار البدء</div>
+      <div class="task-kpi-val" id="tk-count-pending">0</div>
+    </div>
+    <div class="task-kpi">
+      <div class="task-kpi-label">قيد التنفيذ</div>
+      <div class="task-kpi-val" id="tk-count-progress">0</div>
+    </div>
+    <div class="task-kpi">
+      <div class="task-kpi-label">مكتملة/مغلقة</div>
+      <div class="task-kpi-val" id="tk-count-complete">0</div>
+    </div>
+  </div>
+  <div id="admin-tasks-container" style="padding:15px">
+    <div class="dim" style="text-align:center">جاري تحميل المهام...</div>
+  </div>
+</div>

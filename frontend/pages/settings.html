@@ -1,0 +1,53 @@
+<div class="pg" id="p-settings">
+  <div class="ph">
+    <div><h2>⚙️ الإعدادات</h2><p>تخصيص الإشعارات وتحديث الواجهة</p></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">👤 إعدادات الحساب</div>
+    <div class="fgrid g3" style="margin-top:10px">
+      <div class="fg">
+        <label>اسم المستخدم الجديد</label>
+        <input type="text" id="st-username" placeholder="اتركه كما هو إن لم ترد تغييره">
+      </div>
+      <div class="fg">
+        <label>كلمة المرور الحالية (مطلوبة عند تغيير اليوزر/الباسورد)</label>
+        <input type="password" id="st-current-password" placeholder="كلمة المرور الحالية">
+      </div>
+      <div class="fg">
+        <label>كلمة المرور الجديدة</label>
+        <input type="password" id="st-new-password" placeholder="6 أحرف على الأقل">
+      </div>
+      <div class="fg">
+        <label>تأكيد كلمة المرور الجديدة</label>
+        <input type="password" id="st-confirm-password" placeholder="أعد كتابة كلمة المرور الجديدة">
+      </div>
+      <div class="fg" style="align-self:end">
+        <button class="btn bg" onclick="saveAccountSettings()">🔐 حفظ بيانات الحساب</button>
+      </div>
+    </div>
+    <div class="dim" id="st-account-msg" style="margin-top:8px">يمكنك تغيير اسم المستخدم أو كلمة المرور.</div>
+  </div>
+
+  <div class="card">
+    <div class="ct">🔔 إعدادات الإشعارات</div>
+    <div class="fgrid g3" style="margin-top:10px">
+      <div class="fg">
+        <label>تشغيل الإشعارات الرقمية في القائمة</label>
+        <select id="st-enable-badges">
+          <option value="on">مفعلة</option>
+          <option value="off">متوقفة</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>تحديث الإشعارات كل (ثانية)</label>
+        <input type="number" id="st-badge-interval" min="15" step="5" value="45">
+      </div>
+      <div class="fg" style="align-self:end">
+        <button class="btn bg" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+      </div>
+    </div>
+    <div class="dim" id="st-save-msg" style="margin-top:8px">سيتم تطبيق الإعدادات فورًا بعد الحفظ.</div>
+  </div>
+
+</div>

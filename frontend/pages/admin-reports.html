@@ -1,0 +1,91 @@
+<!-- ADMIN REPORTS -->
+<div id="p-admin-reports" class="pg">
+  <div class="ph">
+    <div><h2>📊 التقارير والمالية</h2></div>
+  </div>
+  <div class="ar-tools-panel">
+    <div class="ar-tools-filters">
+      <div class="fg ar-fg">
+        <label>الفترة</label>
+        <select id="ar-filter-days">
+          <option value="7">آخر 7 أيام</option>
+          <option value="14">آخر 14 يوم</option>
+          <option value="30" selected>آخر 30 يوم</option>
+          <option value="60">آخر 60 يوم</option>
+          <option value="90">آخر 90 يوم</option>
+        </select>
+      </div>
+      <div class="fg ar-fg" id="ar-filter-hotel-wrap" style="display:none">
+        <label>الفندق</label>
+        <select id="ar-filter-hotel">
+          <option value="all">كل الفنادق</option>
+        </select>
+      </div>
+    </div>
+    <div class="ar-export-grid">
+      <button class="btn ar-btn" onclick="exportAdminFinancialCsv()">⬇️ تصدير المالية CSV</button>
+      <button class="btn ar-btn" onclick="exportAdminPerformanceCsv()">⬇️ تصدير الأداء CSV</button>
+      <button class="btn ar-btn" onclick="exportAdminRoomsCsv()">⬇️ تصدير الغرف CSV</button>
+      <button class="btn ar-btn" onclick="exportAdminWarehouseCsv()">⬇️ تصدير المستودع CSV</button>
+      <button class="btn bg ar-btn ar-btn-main" onclick="exportAdminAllCsv()">📦 تصدير الكل CSV</button>
+      <button class="btn bgr ar-btn" onclick="exportAdminReportPdf()">🖨️ تصدير PDF</button>
+      <button class="btn bb ar-btn" onclick="loadAdminReportsData()">🔄 تحديث</button>
+    </div>
+  </div>
+  <div class="tab-row">
+    <button class="tb act" onclick="stab('rpt','fin',this)">المالية</button>
+    <button class="tb" onclick="stab('rpt','perf',this)">أداء الموظفين</button>
+    <button class="tb" onclick="stab('rpt','rooms',this)">الغرف</button>
+    <button class="tb" onclick="stab('rpt','wh',this)">المستودع</button>
+  </div>
+  <div id="rpt-fin" class="tc act">
+    <div class="sg">
+      <div class="sc" style="--ac:var(--gold)"><div class="sv" id="ar-fin-rev">-</div><div class="sl">إيرادات اليوم</div></div>
+      <div class="sc" style="--ac:var(--red)"><div class="sv" id="ar-fin-exp">-</div><div class="sl">مصروفات اليوم</div></div>
+      <div class="sc" style="--ac:var(--green)"><div class="sv" id="ar-fin-profit">-</div><div class="sl">صافي الربح</div></div>
+    </div>
+    <div class="card"><div class="ct">📋 تقارير الاستقبال المحولة للمحاسب</div>
+      <div class="tw"><table>
+        <thead><tr><th>الفندق</th><th>الوردية</th><th>موظف الاستقبال</th><th>شبكة</th><th>كاش</th><th>غرف</th><th>الحالة</th></tr></thead>
+        <tbody id="ar-fin-body">
+          <tr><td colspan="7" style="text-align:center;color:var(--dim)">جاري تحميل البيانات...</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+  <div id="rpt-perf" class="tc">
+    <div class="card"><div class="ct">⭐ تقييم الموظفين — كل الفنادق</div>
+      <div class="tw"><table>
+        <thead><tr><th>الموظف</th><th>الفندق</th><th>الدور</th><th>المهام</th><th>الإنجاز</th><th>الجودة</th><th>الانضباط</th><th>التقييم</th></tr></thead>
+        <tbody id="ar-perf-body">
+          <tr><td colspan="8" style="text-align:center;color:var(--dim)">جاري تحميل البيانات...</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+  <div id="rpt-rooms" class="tc">
+    <div class="sg">
+      <div class="sc" style="--ac:var(--green)"><div class="sv" id="ar-room-ready">-</div><div class="sl">جاهزة ✅</div></div>
+      <div class="sc" style="--ac:var(--orange)"><div class="sv" id="ar-room-cleaning">-</div><div class="sl">قيد التنظيف 🧹</div></div>
+      <div class="sc" style="--ac:var(--red)"><div class="sv" id="ar-room-maint">-</div><div class="sl">صيانة 🔧</div></div>
+      <div class="sc" style="--ac:var(--blue)"><div class="sv" id="ar-room-available">-</div><div class="sl">متاحة 🔓</div></div>
+    </div>
+  </div>
+  <div id="rpt-wh" class="tc">
+    <div class="card"><div class="ct">📦 المستودع المركزي</div>
+      <div class="ar-wh-form" id="ar-wh-form">
+        <div class="fg ar-fg"><label>اسم الصنف</label><input id="ar-wh-name" type="text" placeholder="مثال: مناشف حمام"></div>
+        <div class="fg ar-fg"><label>الكمية</label><input id="ar-wh-qty" type="number" min="0" placeholder="0"></div>
+        <div class="fg ar-fg"><label>حد إعادة الطلب</label><input id="ar-wh-reorder" type="number" min="0" placeholder="0"></div>
+        <div class="fg ar-fg"><label>الوحدة</label><input id="ar-wh-unit" type="text" placeholder="قطعة / لتر"></div>
+        <button class="btn bg ar-wh-add-btn" onclick="createWarehouseItem()">➕ إضافة صنف</button>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>الصنف</th><th>الكمية</th><th>حد إعادة الطلب</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody id="ar-wh-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري تحميل البيانات...</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>

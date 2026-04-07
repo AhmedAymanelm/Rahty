@@ -1,0 +1,48 @@
+<!-- RECEPTION REPORT -->
+<div id="p-rc-report" class="pg">
+  <div class="ph"><h2>🛎️ تقرير الاستقبال اليومي</h2><p>يُرسل تلقائياً للإدارة والمحاسب</p></div>
+  <div id="rc-edit-mode" class="card" style="display:none;border-color:var(--orange);margin-bottom:12px">
+    <div class="ct">✏️ وضع تعديل التقرير</div>
+    <div id="rc-edit-text" class="dim">يمكنك تعديل تقرير pending خلال 15 دقيقة فقط من وقت الإرسال.</div>
+    <div style="margin-top:10px">
+      <button class="btn br bsm" onclick="cancelRCEdit()">إلغاء التعديل</button>
+    </div>
+  </div>
+  <div class="card"><div class="ct">💰 الإيرادات</div>
+    <div class="fgrid">
+      <div class="fg"><label>إيراد الشبكة (ريال)</label><input type="number" id="rc-net" placeholder="0"></div>
+      <div class="fg"><label>إيراد الكاش (ريال)</label><input type="number" id="rc-cash" placeholder="0"></div>
+    </div>
+    <div class="fg"><label>عدد الغرف المحجوزة من خلالك</label><input type="number" id="rc-rooms" placeholder="0"></div>
+    <div class="fgrid g2">
+      <div class="fg"><label>تاريخ الوردية</label><input type="date" id="rc-date"></div>
+      <div class="fg"><label>نوع الوردية</label>
+        <select id="rc-shift"><option value="morning">صباحية</option><option value="evening">مسائية</option><option value="night">ليلية</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>إرفاق صورة التقرير (اختياري)</label>
+      <div class="upa" onclick="this.querySelector('input').click()">
+        <span class="ui">📷</span>اضغط لإرفاق صورة التقرير
+        <input type="file" id="rc-photo" accept="image/*" style="display:none" onchange="prevPhoto(this,'rc-photo-preview')">
+      </div>
+      <div class="photo-row" id="rc-photo-preview"></div>
+    </div>
+    <div class="dim" id="rc-photo-hint">الصورة ستظهر للمحاسب داخل معاينة PDF قبل الاعتماد.</div>
+  </div>
+  <div class="card"><div class="ct">📝 ملاحظات</div>
+    <div class="fg"><label>ملاحظات على تسعيرة الغرف</label>
+      <textarea id="rc-pricing" placeholder="مثال: الغرف الديلوكس مرتفعة مقارنة بالمنافسين..."></textarea></div>
+    <div class="fg"><label>ملاحظات على أحد المسؤولين (اختياري)</label>
+      <textarea id="rc-notes" placeholder="أي ملاحظة على سلوك أو أداء أحد الموظفين..."></textarea></div>
+  </div>
+  <button class="btn bg" style="width:100%;padding:14px" onclick="submitRC()" id="btn-rc-submit">📤 إرسال للإدارة والمحاسب</button>
+  <div class="card" style="margin-top:14px">
+    <div class="ct">🧾 آخر تقاريرك</div>
+    <div class="tw"><table>
+      <thead><tr><th>التاريخ</th><th>الوردية</th><th>الإيراد</th><th>الحالة</th><th>إجراء</th></tr></thead>
+      <tbody id="rc-reports-body">
+        <tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري التحميل...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

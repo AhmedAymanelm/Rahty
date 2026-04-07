@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database
+*.db
+hokama.db
+
+# Environment variables
+.env
+
+# Optional uploads folder (if we don't want to sync uploaded files)
+backend/uploads/

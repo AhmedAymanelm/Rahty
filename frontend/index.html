@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مجموعة فنادق راحتي — نظام الحوكمة</title>
+  <link rel="icon" type="image/jpeg" href="assets/rahati-logo.jpeg">
+  <link rel="apple-touch-icon" href="assets/rahati-logo.jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/login.css?v=20260406-2">
+  <link rel="stylesheet" href="css/sidebar.css?v=20260406-2">
+  <link rel="stylesheet" href="css/components.css?v=20260406-11">
+  <link rel="stylesheet" href="css/pages.css?v=20260406-8">
+  <link rel="stylesheet" href="css/modals.css?v=20260406-1">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+  <!-- NOTIF OVERLAY -->
+  <div class="nov" id="nov">
+    <div class="nbox">
+      <div class="ni2">📢</div>
+      <h3 id="nov-title">تعميم إداري</h3>
+      <p id="nov-text">يُرجى الالتزام بزي العمل الرسمي اعتباراً من الأحد القادم.</p>
+      <button class="btn bg mt8" onclick="closeNov()">✓ تم القراءة</button>
+    </div>
+  </div>
+
+  <!-- TASK MODAL -->
+  <div class="modal-ov" id="taskModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>📌 إنشاء مهمة جديدة</h3>
+        <button class="modal-close" onclick="closeModal('taskModal')">✕</button>
+      </div>
+      <div class="fg" id="tm-hotel-box"><label>الفندق</label>
+        <select id="tm-hotel">
+          <option value="">جاري تحميل الفنادق...</option>
+        </select>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>نوع المستلم</label>
+          <select id="tm-to-role">
+            <option value="">-- اختر الوظيفة أولاً --</option>
+          </select>
+        </div>
+        <div class="fg"><label>المستلم</label>
+          <select id="tm-to" disabled>
+            <option value="">-- اختر الوظيفة أولاً --</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>الأولوية</label>
+        <select id="tm-pri">
+          <option value="urgent">🔴 عاجل</option>
+          <option value="normal">🟡 عادي</option>
+          <option value="low">🟢 منخفض</option>
+        </select>
+      </div>
+      <div class="fg"><label>عنوان المهمة</label><input type="text" id="tm-title"
+          placeholder="مثال: متابعة صيانة غرفة 305"></div>
+      <div class="fg"><label>التفاصيل</label><textarea id="tm-desc" placeholder="اشرح تفاصيل المهمة..."></textarea>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>تاريخ الاستحقاق</label><input type="date" id="tm-due"></div>
+        <div class="fg"><label>الوقت</label><input type="time" id="tm-time"></div>
+      </div>
+      <button class="btn bg" onclick="submitTask()">📤 إرسال المهمة</button>
+    </div>
+  </div>
+
+  <!-- MAINTENANCE REPORT MODAL -->
+  <div class="modal-ov" id="maintModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>🔧 تقرير الصيانة — غرفة <span id="mm-room">304</span></h3>
+        <button class="modal-close" onclick="closeModal('maintModal')">✕</button>
+      </div>
+      <div style="font-size:.86rem;font-weight:700;margin-bottom:10px" id="mm-title">تفاصيل البلاغ</div>
+      <div class="mr-timeline" id="mm-timeline">
+        <div class="dim">جاري تحميل تفاصيل البلاغ...</div>
+      </div>
+      <div class="sep"></div>
+      <div class="flex-g">
+        <span class="badge b-green" id="mm-status-badge">-</span>
+        <span style="font-size:.78rem;color:var(--dim);">مدة المعالجة: <strong style="color:var(--gold)" id="mm-duration">-</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD USER MODAL -->
+  <div class="modal-ov" id="addUserModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>👤 إضافة موظف جديد</h3>
+        <button class="modal-close" onclick="closeModal('addUserModal')">✕</button>
+      </div>
+      <div id="u-error" class="login-error"></div>
+      <div class="fgrid">
+        <div class="fg"><label>الاسم الكامل</label><input type="text" id="u-fullname" placeholder="مثال: أحمد محمد"></div>
+        <div class="fg"><label>اسم المستخدم</label><input type="text" id="u-username" dir="ltr" placeholder="أحرف إنجليزية فقط"></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>الدور الوظيفي</label>
+          <select id="u-role">
+            <option value="supervisor">🏢 مشرف فندق</option>
+            <option value="superfv">🎯 سوبر فايزر</option>
+            <option value="cleaner">🧹 عامل نظافة</option>
+            <option value="maintenance">🔧 فني صيانة</option>
+            <option value="reception">🛎️ موظف استقبال</option>
+            <option value="accountant">💼 محاسب</option>
+            <option value="admin">👑 الإدارة العامة</option>
+          </select>
+        </div>
+        <div class="fg"><label>الفندق التابع له</label>
+          <select id="u-hotel">
+            <option value="">جميع الفنادق (إدارة فقط)</option>
+            <!-- يتم تعبئتها من الـ API -->
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>كلمة المرور</label><input type="password" id="u-password" dir="ltr"></div>
+      <button class="btn bg" onclick="submitNewUser()" id="btn-add-user">✅ إضافة الموظف</button>
+    </div>
+  </div>
+
+  <!-- EDIT USER MODAL -->
+  <div class="modal-ov" id="editUserModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>✏️ تعديل بيانات الموظف</h3>
+        <button class="modal-close" onclick="closeModal('editUserModal')">✕</button>
+      </div>
+      <div id="eu-error" class="login-error"></div>
+      <div class="fgrid">
+        <div class="fg"><label>الاسم الكامل</label><input type="text" id="eu-fullname"></div>
+        <div class="fg"><label>اسم المستخدم</label><input type="text" id="eu-username" dir="ltr" readonly></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>الدور الوظيفي</label>
+          <select id="eu-role">
+            <option value="supervisor">🏢 مشرف فندق</option>
+            <option value="superfv">🎯 سوبر فايزر</option>
+            <option value="cleaner">🧹 عامل نظافة</option>
+            <option value="maintenance">🔧 فني صيانة</option>
+            <option value="reception">🛎️ موظف استقبال</option>
+            <option value="accountant">💼 محاسب</option>
+            <option value="admin">👑 الإدارة العامة</option>
+          </select>
+        </div>
+        <div class="fg"><label>الفندق التابع له</label>
+          <select id="eu-hotel">
+            <option value="">جاري تحميل الفنادق...</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>الحالة</label>
+        <select id="eu-active">
+          <option value="active">نشط</option>
+          <option value="inactive">موقوف</option>
+        </select>
+      </div>
+      <button class="btn bg" onclick="submitUserEdit()" id="btn-edit-user">💾 حفظ التعديلات</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR OVERLAY -->
+  <div class="sb-ov" id="sb-ov" onclick="closeSB()"></div>
+
+  <!-- IMAGE LIGHTBOX -->
+  <div class="modal-ov" id="img-lightbox" onclick="if(event.target===this) closeImageLightbox()">
+    <div class="modal-box img-lightbox-box">
+      <div class="modal-head">
+        <!-- <h3>🖼️ عرض الصورة</h3> -->
+        <button class="modal-close" onclick="closeImageLightbox()">✕</button>
+      </div>
+      <div class="img-lightbox-wrap">
+        <img id="img-lightbox-photo" class="img-lightbox-photo" alt="صورة البلاغ">
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= LOGIN ======= -->
+  <div id="loginScreen" class="screen active">
+    <div class="login-wrap">
+      <div class="login-brand">
+        <img class="brand-logo" src="assets/rahati-logo.jpeg" alt="RAHTI logo">
+        <h1>راحتي</h1>
+        <p>نظام حوكمة مجموعة الفنادق — 7 فنادق</p>
+      </div>
+      <div class="login-box">
+        <h2>اختر دورك الوظيفي</h2>
+        <div class="role-grid">
+          <div class="rb" onclick="selRole('admin')" id="r-admin"><span class="ri">👑</span>الإدارة العامة</div>
+          <div class="rb" onclick="selRole('supervisor')" id="r-supervisor"><span class="ri">🏢</span>مشرف الفندق</div>
+          <div class="rb" onclick="selRole('superfv')" id="r-superfv"><span class="ri">🎯</span>سوبر فايزر</div>
+          <div class="rb" onclick="selRole('cleaner')" id="r-cleaner"><span class="ri">🧹</span>عامل النظافة</div>
+          <div class="rb" onclick="selRole('maintenance')" id="r-maintenance"><span class="ri">🔧</span>فني الصيانة
+          </div>
+          <div class="rb" onclick="selRole('reception')" id="r-reception"><span class="ri">🛎️</span>موظف الاستقبال
+          </div>
+          <div class="rb" onclick="selRole('accountant')" id="r-accountant"><span class="ri">💼</span>المحاسب</div>
+        </div>
+        <div class="hotel-sel" id="hotel-sel">
+          <label>اختر الفندق</label>
+          <select class="inp" id="sel-hotel" style="margin-bottom:0">
+            <option value="">يتم التحديد تلقائياً بعد تسجيل الدخول</option>
+          </select>
+        </div>
+        <div id="login-error" class="login-error"></div>
+        <input type="text" class="inp" id="l-name" placeholder="اسم المستخدم">
+        <input type="password" class="inp" id="l-pass" placeholder="كلمة المرور">
+        <button class="btn-login" onclick="doLogin()">دخول إلى النظام</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= APP ======= -->
+  <div id="appScreen" class="screen">
+    <!-- SIDEBAR -->
+    <div class="sb" id="sidebar">
+      <div class="sb-head">
+        <div class="logo-wrap">
+          <img class="logo-img" src="assets/rahati-logo.jpeg" alt="RAHTI logo">
+          <div class="logo">راحتي</div>
+        </div>
+        <div class="sub">نظام الحوكمة الفندقية</div>
+      </div>
+      <div class="user-card">
+        <div class="uc-role" id="uc-role">—</div>
+        <div class="uc-name" id="uc-name">—</div>
+        <div class="uc-hotel" id="uc-hotel">—</div>
+        <div id="attendance-quick" class="att-quick" style="display:none;">
+          <div id="attendance-quick-status" class="dim" style="font-size:.72rem;margin:6px 0 8px 0;">—</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn bgr bsm" id="attendance-checkin-btn" onclick="attendanceCheckInNow()">▶️ بدء الدوام</button>
+          </div>
+        </div>
+      </div>
+      <div id="sb-nav"></div>
+      <div class="sb-foot">
+        <button class="btn-out" onclick="doLogout()">تسجيل الخروج</button>
+        <button class="btn-out" id="attendance-checkout-btn" style="display:none;margin-top:8px;" onclick="attendanceCheckOutNow()">إنهاء الدوام</button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="mc">
+      <div class="mob-head">
+        <button class="hamb" onclick="openSB()">☰</button>
+        <span class="mob-brand"><img src="assets/rahati-logo.jpeg" alt="RAHTI logo"><strong>راحتي</strong></span>
+        <span id="mob-role" style="font-size:.72rem;color:var(--dim)"></span>
+      </div>
+
+      <!-- Pages are loaded from separate files -->
+      <div id="pages-container"></div>
+    </div>
+  </div>
+
+  <!-- JS Files (order matters) -->
+  <script src="js/api.js?v=20260406-2"></script>
+  <script src="js/data.js?v=20260406-3"></script>
+  <script src="js/settings.js?v=20260406-5"></script>
+  <script src="js/modals.js?v=20260406-6"></script>
+  <script src="js/navigation.js?v=20260406-4"></script>
+  <script src="js/auth.js?v=20260406-9"></script>
+  <script src="js/tasks.js?v=20260406-4"></script>
+  <script src="js/checklist.js?v=20260406-2"></script>
+  <script src="js/rooms.js?v=20260406-2"></script>
+  <script src="js/users.js?v=20260406-5"></script>
+  <script src="js/maintenance.js?v=20260406-10"></script>
+  <script src="js/dashboard.js?v=20260406-21"></script>
+  <script src="js/admin-reports.js?v=20260406-5"></script>
+  <script src="js/reception.js?v=20260406-16"></script>
+  <script src="js/finance-workflows.js?v=20260407-1"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Load all page templates
+    const pageFiles = [
+      'pages/admin-dashboard.html',
+      'pages/admin-income.html',
+      'pages/expenses-orders.html',
+      'pages/warehouse-manager.html',
+      'pages/users-management.html',
+      'pages/admin-tasks.html',
+      'pages/admin-maintenance.html',
+      'pages/admin-reports.html',
+      'pages/admin-broadcast.html',
+      'pages/supervisor-dashboard.html',
+      'pages/supervisor-warehouse.html',
+      'pages/supervisor-tasks.html',
+      'pages/cleaner-rooms.html',
+      'pages/cleaner-report.html',
+      'pages/maintenance-tasks.html',
+      'pages/maintenance-job.html',
+      'pages/reception-report.html',
+      'pages/reception-prices.html',
+      'pages/accountant-dashboard.html',
+      'pages/settings.html',
+    ];
+
+    async function loadPages() {
+      const container = document.getElementById('pages-container');
+      for (const file of pageFiles) {
+        try {
+          const res = await fetch(`${file}?v=20260406-20`, { cache: 'no-store' });
+          if (res.ok) {
+            const html = await res.text();
+            container.insertAdjacentHTML('beforeend', html);
+          }
+        } catch (e) {
+          console.warn('Could not load page:', file, e);
+        }
+      }
+    }
+    loadPages();
+  </script>
+</body>
+
+</html>

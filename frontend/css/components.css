@@ -1,0 +1,320 @@
+/* ==========================================
+   راحتي — Reusable Components
+   ========================================== */
+
+/* ---- Cards ---- */
+.card {
+  background: var(--dark2);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 15px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+.ct {
+  font-size: .92rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  padding-bottom: 11px;
+}
+
+/* ---- Stat Cards ---- */
+.sg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 13px;
+  margin-bottom: 18px;
+}
+.sc {
+  background: var(--dark2);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 13px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.sc::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--ac, var(--gold));
+}
+.sc .sv {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--ac, var(--gold));
+}
+.sc .sl {
+  font-size: .75rem;
+  color: var(--dim);
+  margin-top: 3px;
+}
+.sc .si {
+  font-size: 1.6rem;
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: .13;
+}
+
+/* ---- Forms ---- */
+.fg {
+  margin-bottom: 14px;
+}
+.fg label {
+  display: block;
+  font-size: .8rem;
+  color: var(--dim);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.fg input,
+.fg select,
+.fg textarea {
+  width: 100%;
+  padding: 10px 13px;
+  background: var(--dark3);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .88rem;
+  outline: none;
+  transition: border-color .2s;
+}
+.fg input:focus,
+.fg select:focus,
+.fg textarea:focus {
+  border-color: var(--gold);
+}
+.fg textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.fg select option {
+  background: var(--dark3);
+}
+.fgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+}
+.fgrid.g3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ---- Buttons ---- */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 9px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bg {
+  background: linear-gradient(135deg, var(--gold-d), var(--gold));
+  color: #07100a;
+}
+.bg:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(201,168,76,.35);
+}
+.bb {
+  background: rgba(41,128,185,.15);
+  border: 1px solid rgba(41,128,185,.3);
+  color: var(--blue);
+}
+.br {
+  background: rgba(231,76,60,.13);
+  border: 1px solid rgba(231,76,60,.3);
+  color: var(--red);
+}
+.bgr {
+  background: rgba(39,174,96,.13);
+  border: 1px solid rgba(39,174,96,.3);
+  color: var(--green);
+}
+.bo {
+  background: rgba(230,126,34,.13);
+  border: 1px solid rgba(230,126,34,.3);
+  color: var(--orange);
+}
+.bsm {
+  padding: 7px 13px;
+  font-size: .78rem;
+}
+
+/* ---- Attendance Policy Actions ---- */
+.policy-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.policy-actions .btn {
+  width: 100%;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.policy-action-weekly {
+  background: linear-gradient(135deg, rgba(52,152,219,.18), rgba(41,128,185,.3));
+  border: 1px solid rgba(52,152,219,.35);
+  color: #d8ecff;
+}
+
+.policy-action-monthly {
+  background: linear-gradient(135deg, rgba(142,68,173,.2), rgba(109,33,143,.3));
+  border: 1px solid rgba(166,103,197,.4);
+  color: #f0dcff;
+}
+
+@media (max-width: 980px) {
+  .policy-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .policy-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.policy-meta {
+  margin-top: 10px;
+  text-align: center;
+  padding: 9px 12px;
+  border: 1px dashed rgba(255,255,255,.12);
+  border-radius: 10px;
+  background: rgba(255,255,255,.02);
+}
+
+/* ---- Tables ---- */
+.tw {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  background: var(--dark3);
+  color: var(--dim);
+  font-size: .75rem;
+  padding: 10px 13px;
+  text-align: right;
+  font-weight: 600;
+}
+td {
+  padding: 10px 13px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: .85rem;
+  vertical-align: middle;
+}
+tr:hover td {
+  background: rgba(255,255,255,.015);
+}
+
+/* ---- Badges ---- */
+.badge {
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 700;
+}
+.b-green  { background: rgba(39,174,96,.15);  color: var(--green);  }
+.b-red    { background: rgba(231,76,60,.15);   color: var(--red);    }
+.b-orange { background: rgba(230,126,34,.15);  color: var(--orange); }
+.b-blue   { background: rgba(41,128,185,.15);  color: var(--blue);   }
+.b-gold   { background: rgba(201,168,76,.15);  color: var(--gold);   }
+.b-purple { background: rgba(142,68,173,.15);  color: var(--purple); }
+
+/* ---- Tabs ---- */
+.tab-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 18px;
+  background: var(--dark3);
+  padding: 4px;
+  border-radius: 11px;
+  flex-wrap: wrap;
+}
+.tb {
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--dim);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .83rem;
+  cursor: pointer;
+  transition: .18s;
+}
+.tb.act {
+  background: var(--dark2);
+  color: var(--gold);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.tc { display: none; }
+.tc.act { display: block; }
+
+/* ---- Upload Area ---- */
+.upa {
+  border: 2px dashed rgba(201,168,76,.25);
+  border-radius: 10px;
+  padding: 22px;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s;
+  color: var(--dim);
+  font-size: .85rem;
+}
+.upa:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201,168,76,.04);
+}
+.upa .ui {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 6px;
+}
+.photo-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.pt {
+  width: 72px;
+  height: 72px;
+  border-radius: 7px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.att-quick {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255,255,255,.12);
+}

@@ -1,0 +1,34 @@
+<!-- ACCOUNTANT DASHBOARD -->
+<div id="p-ac-dash" class="pg">
+  <div class="ph"><h2>💼 لوحة المحاسب</h2></div>
+  <div class="sg">
+    <div class="sc" style="--ac:var(--gold)"><div class="sv" id="ac-revenue">0</div><div class="sl">الإيرادات</div></div>
+    <div class="sc" style="--ac:var(--red)"><div class="sv" id="ac-expenses">0</div><div class="sl">المصروفات</div></div>
+    <div class="sc" style="--ac:var(--green)"><div class="sv" id="ac-profit">0</div><div class="sl">صافي الربح</div></div>
+  </div>
+  <div class="card"><div class="ct">📋 تقارير الاستقبال — بانتظار الاعتماد</div>
+    <div id="ac-pending-list">
+      <div class="dim">جاري تحميل التقارير...</div>
+    </div>
+  </div>
+  <div class="card"><div class="ct">🧾 سجل التقارير المعتمدة/المرفوضة</div>
+    <div class="fgrid" style="margin-bottom:10px">
+      <div class="fg"><label>الحالة</label><select id="ac-history-status" onchange="renderAccountantHistory()"><option value="all">الكل</option><option value="approved">معتمد</option><option value="rejected">مرفوض</option></select></div>
+      <div class="fg"><label>التاريخ</label><input type="date" id="ac-history-date" onchange="renderAccountantHistory()"></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>التاريخ</th><th>الوردية</th><th>الإيراد</th><th>الحالة</th><th>ملاحظة المراجعة</th></tr></thead>
+      <tbody id="ac-history-body">
+        <tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري التحميل...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="card"><div class="ct">📦 المصروفات الأخيرة</div>
+    <div class="tw"><table>
+      <thead><tr><th>الفئة</th><th>الوصف</th><th>القيمة</th><th>التاريخ</th></tr></thead>
+      <tbody id="ac-expenses-body">
+        <tr><td colspan="4" style="text-align:center;color:var(--dim)">جاري التحميل...</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
