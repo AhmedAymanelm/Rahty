@@ -1,0 +1,47 @@
+<div class="pg" id="p-all-chats">
+  <div class="pg-head" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem; display:flex; align-items:center; gap:8px;">📁 كل محادثات الموظفين</h2>
+      <p class="dim" style="margin-top:5px; font-size:0.9rem;">عرض وقراءة جميع المحادثات</p>
+    </div>
+    <button class="btn bo" onclick="exportAllChats()">📊 تصدير</button>
+  </div>
+
+  <div class="pg-body" style="display:flex; gap:20px; height:calc(100vh - 120px); align-items:stretch;">
+
+    <!-- Threads List (Right) -->
+    <div style="width:330px; background:var(--dark3); border-radius:12px; border:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; overflow:hidden; flex-shrink:0;">
+      <!-- Hotel filter tabs -->
+      <div id="all-chats-hotel-tabs" style="display:flex; gap:0; overflow-x:auto; border-bottom:1px solid rgba(255,255,255,0.05); padding:0 8px; flex-shrink:0; scrollbar-width:none;">
+        <!-- Tabs built by JS -->
+      </div>
+      <!-- Thread list -->
+      <div id="all-chats-threads" style="flex:1; overflow-y:auto;">
+        <div class="dim" style="text-align:center; padding:30px;">جاري التحميل...</div>
+      </div>
+    </div>
+
+    <!-- Chat Viewer (Left) -->
+    <div style="flex:1; background:var(--dark3); border-radius:12px; border:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; overflow:hidden;">
+      <div style="padding:15px 20px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:1rem; display:flex; align-items:center; gap:8px;" id="all-chats-view-title">💬 اختر محادثة للعرض</h3>
+      </div>
+
+      <div id="all-chats-messages" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:14px;">
+        <div class="dim" style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;">
+          <span style="font-size:3rem; opacity:0.4;">💬</span>
+          <span>اختر محادثة من القائمة لعرضها</span>
+        </div>
+      </div>
+
+      <!-- Reply bar (admin only) -->
+      <div id="all-chats-reply-bar" style="padding:12px 15px; border-top:1px solid rgba(255,255,255,0.05); display:flex; gap:10px; background:rgba(0,0,0,0.2);">
+        <div style="flex:1;">
+          <input type="text" id="all-chats-input" placeholder="رسالة للموظف..." style="width:100%; border-radius:8px; border:1px solid rgba(255,255,255,0.1); outline:none; background:var(--dark); padding:11px 14px; color:var(--text);" disabled onkeypress="if(event.key==='Enter') sendAllChatReply()">
+        </div>
+        <button class="btn bg" id="all-chats-send" onclick="sendAllChatReply()" disabled>إرسال</button>
+      </div>
+    </div>
+
+  </div>
+</div>

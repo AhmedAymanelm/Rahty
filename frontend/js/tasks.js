@@ -319,7 +319,7 @@ async function loadTasks() {
 
   try {
     let endpoint = '/tasks';
-    if (currentRole === 'admin' && typeof activeAdminHotelFilter !== 'undefined' && activeAdminHotelFilter) {
+    if (currentRole === 'admin' && typeof activeAdminHotelFilter !== 'undefined' && activeAdminHotelFilter && activeAdminHotelFilter !== 'all') {
       endpoint += `?hotel_id=${encodeURIComponent(activeAdminHotelFilter)}`;
     }
     const tasks = await apiRequest(endpoint);

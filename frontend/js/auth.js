@@ -161,6 +161,10 @@ async function doLogin() {
     if (typeof refreshAttendanceQuickState === 'function') {
       refreshAttendanceQuickState();
     }
+    // Start global inbox polling for DM notifications
+    if (typeof startCommInboxPolling === 'function') {
+      setTimeout(() => startCommInboxPolling(), 2000);
+    }
 
   } catch (err) {
     showLoginError(err.message);
@@ -218,6 +222,10 @@ async function tryAutoLogin() {
     }
     if (typeof refreshAttendanceQuickState === 'function') {
       refreshAttendanceQuickState();
+    }
+    // Start global inbox polling for DM notifications
+    if (typeof startCommInboxPolling === 'function') {
+      setTimeout(() => startCommInboxPolling(), 2000);
     }
 
   } catch (e) {

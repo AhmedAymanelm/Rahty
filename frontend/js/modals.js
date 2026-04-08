@@ -224,3 +224,75 @@ function prevPhoto(input, previewId) {
     rd.readAsDataURL(file);
   }
 }
+
+/**
+ * Open a customized, visually appealing confirm dialog.
+ */
+function fwOpenConfirmDialog({ title, message, confirmLabel = 'نعم، أوافق', cancelLabel = 'إلغاء', confirmClass = 'br' }) {
+  return new Promise((resolve) => {
+    // Basic modal overlay
+    const ov = document.createElement('div');
+    ov.className = 'modal-ov show';
+    ov.style.zIndex = '9999';
+
+    // Modal box
+    const box = document.createElement('div');
+    box.className = 'modal-box';
+    box.style.maxWidth = '400px';
+    box.style.textAlign = 'center';
+    
+    // Icon/Title
+    const titleEl = document.createElement('h3');
+    titleEl.style.fontSize = '1.2rem';
+    titleEl.style.color = 'var(--gold)';
+    titleEl.style.marginBottom = '12px';
+    titleEl.textContent = title;
+
+    // Message
+    const msgEl = document.createElement('p');
+    msgEl.style.color = 'var(--dim)';
+    msgEl.style.fontSize = '0.95rem';
+    msgEl.style.marginBottom = '24px';
+    msgEl.style.lineHeight = '1.5';
+    msgEl.textContent = message;
+
+    // Actions
+    const actions = document.createElement('div');
+    actions.style.display = 'flex';
+    actions.style.gap = '10px';
+    actions.style.justifyContent = 'center';
+
+    const btnCancel = document.createElement('button');
+    btnCancel.className = 'btn';
+    btnCancel.style.background = 'transparent';
+    btnCancel.style.border = '1px solid rgba(255,255,255,0.1)';
+    btnCancel.textContent = cancelLabel;
+
+    const btnConfirm = document.createElement('button');
+    btnConfirm.className = `btn ${confirmClass}`;
+    btnConfirm.textContent = confirmLabel;
+
+    actions.appendChild(btnCancel);
+    actions.appendChild(btnConfirm);
+
+    box.appendChild(titleEl);
+    box.appendChild(msgEl);
+    box.appendChild(actions);
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+
+    const cleanup = () => {
+      ov.remove();
+    };
+
+    btnCancel.onclick = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    btnConfirm.onclick = () => {
+      cleanup();
+      resolve(true);
+    };
+  });
+}

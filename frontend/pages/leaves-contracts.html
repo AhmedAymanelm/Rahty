@@ -1,0 +1,121 @@
+<div class="pg" id="p-leaves-contracts">
+  <div class="pg-head" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem; display:flex; align-items:center; gap:8px;">🏖️ طلبات الإجازة والعقود</h2>
+      <p class="dim" style="margin-top:5px; font-size:0.9rem;">إدارة العقود وتتبع الإجازات والإنذارات</p>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn bo" onclick="exportLeavesContractsExcel()">📊 تصدير البيانات</button>
+    </div>
+  </div>
+
+  <div class="pg-body">
+    <!-- TABS -->
+    <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px;">
+      <button class="tb act" data-lc-tab="lc-tab-warnings" onclick="switchLcTab('lc-tab-warnings')" style="background:transparent; border:none; color:var(--text); padding:8px 15px; font-weight:bold; cursor:pointer;">الإنذارات</button>
+      <button class="tb" data-lc-tab="lc-tab-contracts" onclick="switchLcTab('lc-tab-contracts')" style="background:transparent; border:none; color:var(--dim); padding:8px 15px; font-weight:bold; cursor:pointer;">العقود</button>
+      <button class="tb" data-lc-tab="lc-tab-leaves" onclick="switchLcTab('lc-tab-leaves')" style="background:transparent; border:none; color:var(--dim); padding:8px 15px; font-weight:bold; cursor:pointer;">طلبات الإجازة</button>
+    </div>
+
+    <!-- TAB: WARNINGS -->
+    <div id="lc-tab-warnings" class="lc-tab-content act">
+      <div style="background:var(--dark3); border-radius:12px; padding:20px; border:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="margin:0; font-size:1.1rem; color:var(--gold);">⚠️ سجل الإنذارات</h3>
+          <div style="display:flex; gap:10px;">
+            <button class="btn bo" onclick="exportLcTable('lc-warnings-tbody')">📊 تصدير</button>
+            <button class="btn" style="background:rgba(201,168,76,0.1); border:1px solid var(--gold); color:var(--gold);" onclick="openWarningModalGlobal()">➕ إنذار جديد</button>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>الموظف</th>
+                <th>الفندق</th>
+                <th>نوع الإنذار</th>
+                <th>السبب</th>
+                <th>التاريخ</th>
+                <th>الحالة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="lc-warnings-tbody">
+              <tr>
+                <td colspan="7" class="dim" style="text-align:center; padding:30px;">جاري تحميل الإنذارات...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: CONTRACTS -->
+    <div id="lc-tab-contracts" class="lc-tab-content" style="display:none;">
+      <div style="background:var(--dark3); border-radius:12px; padding:20px; border:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="margin:0; font-size:1.1rem; color:var(--green);">📄 سجل العقود</h3>
+          <div style="display:flex; gap:10px;">
+            <button class="btn bo" onclick="exportLcTable('lc-contracts-tbody')">📊 تصدير</button>
+            <!-- Add contract can be done from employee profile directly -->
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>الموظف</th>
+                <th>الفندق</th>
+                <th>الدور</th>
+                <th>نوع العقد</th>
+                <th>تاريخ التعيين</th>
+                <th>الراتب الأساسي</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="lc-contracts-tbody">
+              <tr>
+                <td colspan="7" class="dim" style="text-align:center; padding:30px;">جاري تحميل العقود...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: LEAVES -->
+    <div id="lc-tab-leaves" class="lc-tab-content" style="display:none;">
+      <div style="background:var(--dark3); border-radius:12px; padding:20px; border:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="margin:0; font-size:1.1rem; color:var(--blue);">🏖️ طلبات الإجازة</h3>
+          <div style="display:flex; gap:10px;">
+            <button class="btn bo" onclick="exportLcTable('lc-leaves-tbody')">📊 تصدير</button>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>الموظف</th>
+                <th>الفندق</th>
+                <th>نوع الإجازة</th>
+                <th>المدة</th>
+                <th>السبب</th>
+                <th>حالة الطلب</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="lc-leaves-tbody">
+              <tr>
+                <td colspan="7" class="dim" style="text-align:center; padding:30px;">جاري تحميل طلبات الإجازة...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

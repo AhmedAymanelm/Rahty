@@ -1464,7 +1464,7 @@ def admin_reports_overview(
     days: int = 30,
     hotel_id: Optional[int] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "accountant", "supervisor", "superfv")),
+    current_user: User = Depends(require_role("admin", "accountant", "supervisor", "superfv", "warehouse_manager")),
 ):
     role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
 
@@ -1652,8 +1652,8 @@ def admin_reports_overview(
 def list_warehouse_items(
     include_inactive: bool = False,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "accountant", "supervisor", "superfv")),
-):
+    current_user: User = Depends(require_role("admin", "accountant", "supervisor", "superfv", "warehouse_manager")),
+) :
     q = db.query(WarehouseItem)
     if not include_inactive:
         q = q.filter(WarehouseItem.is_active == 1)
@@ -1681,7 +1681,7 @@ def list_warehouse_items(
 def create_warehouse_item(
     req: WarehouseItemCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "supervisor", "superfv")),
+    current_user: User = Depends(require_role("admin", "supervisor", "superfv", "warehouse_manager")),
 ):
     name = req.item_name.strip()
     unit = req.unit.strip()
@@ -1741,7 +1741,7 @@ def update_warehouse_item(
     item_id: int,
     req: WarehouseItemUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin", "warehouse_manager")),
 ):
     row = db.query(WarehouseItem).filter(WarehouseItem.id == item_id).first()
     if not row:
@@ -1806,7 +1806,7 @@ def consume_warehouse_item(
     item_id: int,
     req: WarehouseItemConsumeRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin", "warehouse_manager")),
 ):
     row = db.query(WarehouseItem).filter(WarehouseItem.id == item_id, WarehouseItem.is_active == 1).first()
     if not row:
@@ -1851,7 +1851,7 @@ def consume_warehouse_item(
 def create_warehouse_request(
     req: WarehouseRequestCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "supervisor", "superfv")),
+    current_user: User = Depends(require_role("admin", "supervisor", "superfv", "warehouse_manager")),
 ):
     role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
 
@@ -1905,7 +1905,7 @@ def list_warehouse_requests(
     to_date: Optional[date] = None,
     search: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "accountant", "supervisor", "superfv")),
+    current_user: User = Depends(require_role("admin", "accountant", "supervisor", "superfv", "warehouse_manager")),
 ):
     role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
     q = db.query(WarehouseRequest)
@@ -1921,10 +1921,14 @@ def list_warehouse_requests(
             q = q.filter(WarehouseRequest.hotel_id == current_user.hotel_id)
         if hotel_id is not None:
             q = q.filter(WarehouseRequest.hotel_id == hotel_id)
+    elif role == "warehouse_manager":
+        # Warehouse managers see everything by default or filter by hotel
+        if hotel_id is not None:
+            q = q.filter(WarehouseRequest.hotel_id == hotel_id)
     else:
         q = q.filter(WarehouseRequest.requester_id == current_user.id)
 
-    if requester_id is not None and role in ["admin", "accountant", "superfv"]:
+    if requester_id is not None and role in ["admin", "accountant", "superfv", "warehouse_manager"]:
         q = q.filter(WarehouseRequest.requester_id == requester_id)
     if item_id is not None:
         q = q.filter(WarehouseRequest.item_id == item_id)
@@ -1962,7 +1966,7 @@ def review_warehouse_request(
     request_id: int,
     req: WarehouseRequestReviewRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "superfv")),
+    current_user: User = Depends(require_role("admin", "superfv", "warehouse_manager")),
 ):
     row = db.query(WarehouseRequest).filter(WarehouseRequest.id == request_id).first()
     if not row:

@@ -1,0 +1,48 @@
+<div class="pg" id="p-communications">
+  <div class="pg-head" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem; display:flex; align-items:center; gap:8px;">💬 مركز التواصل</h2>
+      <p class="dim" style="margin-top:5px; font-size:0.9rem;">تواصل مع أي موظف في أي فندق</p>
+    </div>
+  </div>
+
+  <div class="pg-body" style="display:flex; gap:20px; height:calc(100vh - 120px); align-items:stretch;">
+    
+    <!-- Contacts Sidebar (Right in RTL) -->
+    <div style="width:320px; background:var(--dark3); border-radius:12px; border:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:15px 20px; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <h3 style="margin:0; font-size:1.1rem;">جهات التواصل</h3>
+        </div>
+        <div style="padding:10px 15px; border-bottom:1px solid rgba(255,255,255,0.05);">
+             <input type="text" id="comm-contact-search" placeholder="بحث عن موظف..." style="width:100%; border-radius:30px; font-size:0.85rem; padding:8px 15px;" oninput="filterCommunicationContacts()">
+        </div>
+        <div id="comm-contacts-list" style="flex:1; overflow-y:auto;">
+            <!-- Contacts populated via JS -->
+            <div class="dim" style="text-align:center; padding:30px;">جاري تحميل جهات التواصل...</div>
+        </div>
+    </div>
+
+    <!-- Chat Area (Left in RTL) -->
+    <div style="flex:1; background:var(--dark3); border-radius:12px; border:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:15px 20px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin:0; font-size:1.1rem; display:flex; align-items:center; gap:8px;" id="comm-chat-title">💬 اختر موظفاً للتواصل</h3>
+        </div>
+        
+        <div id="comm-chat-messages" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:15px;">
+            <!-- Chat history populated via JS -->
+            <div class="dim" style="text-align:center; padding:50px; display:flex; flex-direction:column; align-items:center; gap:10px; height:100%; justify-content:center;">
+                <span style="font-size:3rem; opacity:0.5;">💬</span>
+                <span>اختر موظفاً من القائمة لبدء المحادثة</span>
+            </div>
+        </div>
+
+        <div style="padding:15px; border-top:1px solid rgba(255,255,255,0.05); display:flex; gap:10px; background:rgba(0,0,0,0.2);">
+            <div style="flex:1;">
+               <input type="text" id="comm-chat-input" placeholder="اكتب رسالتك..." style="width:100%; border-radius:8px; border:1px solid rgba(255,255,255,0.1); outline:none; background:var(--dark); padding: 12px 15px; color: var(--text);" disabled onkeypress="if(event.key === 'Enter') sendCommunicationMessage()">
+            </div>
+            <button class="btn bg" id="comm-chat-send" onclick="sendCommunicationMessage()" disabled>إرسال</button>
+        </div>
+    </div>
+
+  </div>
+</div>

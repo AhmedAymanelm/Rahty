@@ -737,7 +737,7 @@ async function startAttendanceHeartbeat() {
       // Ignore silently.
     }
 
-    await refreshAttendanceQuickState().catch(() => {});
+    await refreshAttendanceQuickState().catch(() => { });
   };
 
   await kick();
@@ -845,16 +845,17 @@ window.refreshAttendanceQuickState = refreshAttendanceQuickState;
 
 async function loadDashboardOverview() {
   try {
+    // Load hotel pills FIRST so activeAdminHotelFilter is set before room forms use it
+    await loadAdminHotelPills();
+    await ensureAdminUsersCache();
+    renderAdminHotelStaffList();
+
     if (typeof initRoomCreateForms === 'function') {
       await initRoomCreateForms();
     }
 
     await initDashboardPriceControls();
     await initAttendancePolicyControls();
-
-    await loadAdminHotelPills();
-    await ensureAdminUsersCache();
-    renderAdminHotelStaffList();
 
     let endpoint = '/dashboard/overview';
     if (getStoredUser()?.role === 'admin') {

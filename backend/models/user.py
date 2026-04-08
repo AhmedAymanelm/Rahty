@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Enum, DateTime, Boolean, func, ForeignKey
+from sqlalchemy import Column, Integer, String, Enum, DateTime, Boolean, func, ForeignKey, Date, Numeric
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -12,6 +12,7 @@ class UserRole(str, enum.Enum):
     maintenance = "maintenance"
     reception = "reception"
     accountant = "accountant"
+    warehouse_manager = "warehouse_manager"
 
 
 class User(Base):
@@ -24,8 +25,18 @@ class User(Base):
     role = Column(Enum(UserRole), nullable=False)
     hotel_id = Column(Integer, ForeignKey("hotels.id"), nullable=True)  # NULL = all hotels (admin)
     is_active = Column(Boolean, default=True)
+
+    # New detailed profile fields
+    national_id = Column(String(50), nullable=True)
+    phone_number = Column(String(50), nullable=True)
+    email = Column(String(150), nullable=True)
+    hiring_date = Column(Date, nullable=True)
+    contract_type = Column(String(50), default="دوام كامل", nullable=True)
+    basic_salary = Column(Numeric(10, 2), nullable=True)
+    nationality = Column(String(50), nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    hotel = relationship("Hotel", back_populates="users")
+    hotel = relationship("Hotel", back_populates="users", foreign_keys=[hotel_id])

@@ -33,13 +33,8 @@ const DEFAULT_OUR_PRICE_FALLBACK = (typeof OUR_PRICE === 'number' && OUR_PRICE >
 let ourReferencePrice = DEFAULT_OUR_PRICE_FALLBACK;
 let ourReferenceRoomType = 'غرفة عادية';
 let ourReferenceUpdatedAt = null;
-const OUR_ROOM_TYPES = ['غرفة عادية', 'ديلوكس', 'جناح', 'غرفة عائلية'];
-const ourReferenceByType = {
-  'غرفة عادية': { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null },
-  'ديلوكس': { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null },
-  'جناح': { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null },
-  'غرفة عائلية': { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null },
-};
+let DYNAMIC_ROOM_TYPES = [];
+let ourReferenceByType = {};
 
 function relativeTime(ts) {
   if (!ts) return '—';
@@ -704,7 +699,7 @@ function renderCompetitorPrices(rows) {
   const canManage = ['admin', 'supervisor', 'superfv'].includes(currentRole);
   const selectedType = ourReferenceRoomType || 'غرفة عادية';
   const selectedValue = Number(ourReferenceByType[selectedType]?.price || DEFAULT_OUR_PRICE_FALLBACK);
-  const typeOptions = OUR_ROOM_TYPES
+  const typeOptions = DYNAMIC_ROOM_TYPES
     .map((rt) => `<option value="${rt}" ${rt === selectedType ? 'selected' : ''}>${rt}</option>`)
     .join('');
   const manageHtml = canManage
@@ -720,7 +715,7 @@ function renderCompetitorPrices(rows) {
     : '';
 
   // keep "our" card only
-  const ourRows = OUR_ROOM_TYPES.map((roomType) => {
+  const ourRows = DYNAMIC_ROOM_TYPES.map((roomType) => {
     const row = ourReferenceByType[roomType] || { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null };
     const p = Number(row.price || DEFAULT_OUR_PRICE_FALLBACK);
     return `<div class="pc-room-row"><span class="pc-room-type">${roomType}</span><strong class="pc-room-price">${fmtMoney(p)}</strong></div>`;
@@ -832,9 +827,13 @@ function renderCompetitorPrices(rows) {
       .join('');
 
     const roomCount = hotel.roomPrices.size;
+    const hotelDataJson = encodeURIComponent(JSON.stringify(Object.fromEntries(hotel.roomPrices)));
 
     card.innerHTML = `
-      <div class="pname">${hotel.name}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="pname">${hotel.name}</div>
+        <button class="btn bb bsm" style="padding:4px 8px; font-size:12px;" onclick="fillCompetitorForm('${hotel.name.replace(/'/g, "\\'")}', '${hotelDataJson}')">✏️ تعديل</button>
+      </div>
       <div class="pdiff">${summary}</div>
       <div class="pc-room-count">الأنواع المسجلة: ${roomCount}</div>
       <div class="pc-room-list">
@@ -850,6 +849,32 @@ function renderCompetitorPrices(rows) {
     grid.appendChild(card);
   });
 }
+
+window.fillCompetitorForm = function(hotelName, pricesJsonRaw) {
+  const nameEl = document.getElementById('cp-name');
+  if (nameEl) nameEl.value = hotelName;
+
+  try {
+    const prices = JSON.parse(decodeURIComponent(pricesJsonRaw));
+    const inputs = document.querySelectorAll('.cp-dynamic-price');
+    inputs.forEach(input => {
+      const rt = input.dataset.rt;
+      if (prices[rt]) {
+        input.value = prices[rt].price;
+      } else {
+        input.value = '';
+      }
+    });
+
+    const addBtn = document.querySelector('#p-rc-prices .card button.btn.bg');
+    if (addBtn) addBtn.textContent = '💾 تحديث السعر';
+
+    // Scroll to the form
+    nameEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    console.error('Error parsing prices', err);
+  }
+};
 
 async function loadOurReferencePrice(roomType = 'غرفة عادية') {
   const endpoint = `/finance/our-price?room_type=${encodeURIComponent(roomType)}`;
@@ -868,10 +893,51 @@ async function loadOurReferencePrice(roomType = 'غرفة عادية') {
   ourReferenceUpdatedAt = row.updated_at || null;
 }
 
+async function loadDynamicRoomTypesForReception() {
+  DYNAMIC_ROOM_TYPES = [];
+  ourReferenceByType = {};
+  const user = getStoredUser();
+  const hotelId = user?.hotel_id;
+  const endpoint = hotelId ? `/room-types?hotel_id=${hotelId}` : '/room-types';
+
+  try {
+    const types = await apiRequest(endpoint);
+    if (types && types.length > 0) {
+      DYNAMIC_ROOM_TYPES = types.map(t => t.name);
+      
+      DYNAMIC_ROOM_TYPES.forEach(rt => {
+        ourReferenceByType[rt] = { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null };
+      });
+
+      types.forEach(t => {
+        if (t.base_price > 0) {
+          ourReferenceByType[t.name] = { price: t.base_price, updated_at: t.updated_at };
+        }
+      });
+    }
+  } catch (err) {
+    console.error('Failed to load room types for reception', err);
+  }
+
+  if (DYNAMIC_ROOM_TYPES.length === 0) {
+    DYNAMIC_ROOM_TYPES = ['غرفة عادية']; // fallback
+    DYNAMIC_ROOM_TYPES.forEach(rt => {
+      ourReferenceByType[rt] = { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null };
+    });
+  }
+
+  const container = document.getElementById('cp-dynamic-inputs');
+  if (container) {
+    let ht = `<div class="fg" style="grid-column: 1 / -1;"><label>اسم الفندق المنافس</label><input type="text" id="cp-name" placeholder="مثال: فندق هيلتون"></div>`;
+    DYNAMIC_ROOM_TYPES.forEach((rt) => {
+      ht += `<div class="fg"><label>سعر ${rt} (ريال)</label><input type="number" data-rt="${rt}" class="cp-dynamic-price" placeholder="0"></div>`;
+    });
+    container.innerHTML = ht;
+  }
+}
+
 async function loadAllOurReferencePrices() {
-  await Promise.all(OUR_ROOM_TYPES.map((rt) => loadOurReferencePrice(rt).catch(() => {
-    ourReferenceByType[rt] = { price: DEFAULT_OUR_PRICE_FALLBACK, updated_at: null };
-  })));
+  await loadDynamicRoomTypesForReception();
 }
 
 function syncOurPriceEditor() {
@@ -879,7 +945,7 @@ function syncOurPriceEditor() {
   const priceEl = document.getElementById('cp-our-price');
   if (!typeEl || !priceEl) return;
 
-  const selectedType = typeEl.value || 'غرفة عادية';
+  const selectedType = typeEl.value || (DYNAMIC_ROOM_TYPES[0] || 'غرفة عادية');
   const selectedPrice = Number(ourReferenceByType[selectedType]?.price || DEFAULT_OUR_PRICE_FALLBACK);
   ourReferenceRoomType = selectedType;
   priceEl.value = String(Math.round(selectedPrice));
@@ -945,12 +1011,8 @@ async function loadCompetitorPrices() {
  * Add a competitor price entry
  */
 async function addCompPrice() {
-  const name = document.getElementById('cp-name').value.trim();
-  const standardPrice = parseFloat(document.getElementById('cp-price-standard').value || '0');
-  const deluxePrice = parseFloat(document.getElementById('cp-price-deluxe').value || '0');
-  const suitePrice = parseFloat(document.getElementById('cp-price-suite').value || '0');
-  const familyPrice = parseFloat(document.getElementById('cp-price-family').value || '0');
-  const note = document.getElementById('cp-note').value.trim();
+  const name = document.getElementById('cp-name')?.value.trim();
+  const note = document.getElementById('cp-note')?.value.trim();
 
   if (!name) {
     if (typeof showToast === 'function') showToast('يرجى إدخال اسم الفندق', 'warning');
@@ -958,10 +1020,13 @@ async function addCompPrice() {
   }
 
   const payloads = [];
-  if (standardPrice > 0) payloads.push({ room_type: 'غرفة عادية', price: standardPrice });
-  if (deluxePrice > 0) payloads.push({ room_type: 'ديلوكس', price: deluxePrice });
-  if (suitePrice > 0) payloads.push({ room_type: 'جناح', price: suitePrice });
-  if (familyPrice > 0) payloads.push({ room_type: 'غرفة عائلية', price: familyPrice });
+  const inputs = document.querySelectorAll('.cp-dynamic-price');
+  inputs.forEach(input => {
+    const price = parseFloat(input.value || '0');
+    if (price > 0) {
+      payloads.push({ room_type: input.dataset.rt, price: price });
+    }
+  });
 
   if (payloads.length === 0) {
     if (typeof showToast === 'function') showToast('أدخل سعرًا واحدًا على الأقل لأي نوع غرفة', 'warning');
@@ -979,12 +1044,12 @@ async function addCompPrice() {
       }),
     })));
 
-    document.getElementById('cp-name').value = '';
-    document.getElementById('cp-price-standard').value = '';
-    document.getElementById('cp-price-deluxe').value = '';
-    document.getElementById('cp-price-suite').value = '';
-    document.getElementById('cp-price-family').value = '';
-    document.getElementById('cp-note').value = '';
+    if (document.getElementById('cp-name')) document.getElementById('cp-name').value = '';
+    inputs.forEach(input => input.value = '');
+    if (document.getElementById('cp-note')) document.getElementById('cp-note').value = '';
+    
+    const addBtn = document.querySelector('#p-rc-prices .card button.btn.bg');
+    if (addBtn) addBtn.textContent = '+ إضافة السعر';
 
     if (typeof showToast === 'function') showToast('تم حفظ أسعار المنافس بنجاح', 'success');
     await loadCompetitorPrices();

@@ -11,23 +11,35 @@ const ROLES = {
   maintenance: { label: 'فني الصيانة', icon: '🔧' },
   reception:   { label: 'موظف الاستقبال', icon: '🛎️' },
   accountant:  { label: 'المحاسب', icon: '💼' },
+  warehouse_manager: { label: 'مسؤول المستودع', icon: '🏬' },
 };
 
 // Navigation menus per role
 const NAV = {
   admin: [
-    { sec: 'عام', items: [
+    { sec: 'الرئيسية', items: [
       { id: 'p-admin-dash',    ico: '📊', lbl: 'لوحة القيادة' },
       { id: 'p-admin-income',  ico: '💰', lbl: 'الدخل' },
       { id: 'p-expense-orders',ico: '🧾', lbl: 'سندات الشراء' },
       { id: 'p-warehouse-manager', ico: '🏬', lbl: 'المستودع' },
+    ]},
+    { sec: 'الموارد البشرية', items: [
       { id: 'p-users-mgmt',    ico: '👥', lbl: 'إدارة الموظفين' },
+      { id: 'p-leaves-contracts', ico: '🏖️', lbl: 'الإجازات' },
       { id: 'p-admin-tasks',   ico: '📌', lbl: 'إدارة المهام' },
+    ]},
+    { sec: 'المحادثات', items: [
+      { id: 'p-communications', ico: '💬', lbl: 'مركز التواصل' },
+      { id: 'p-all-chats',      ico: '📁', lbl: 'كل المحادثات' },
+      { id: 'p-admin-bc',      ico: '📢', lbl: 'التعاميم' },
+    ]},
+    { sec: 'التشغيل', items: [
       { id: 'p-admin-maint',   ico: '🔧', lbl: 'تقارير الصيانة' },
       { id: 'p-admin-reports', ico: '📈', lbl: 'التقارير والمالية' },
-      { id: 'p-admin-bc',      ico: '📢', lbl: 'التعاميم' },
-      { id: 'p-settings',      ico: '⚙️', lbl: 'الإعدادات' },
     ]},
+    { sec: 'الإعدادات', items: [
+      { id: 'p-settings',      ico: '⚙️', lbl: 'الإعدادات والقوائم' },
+    ]}
   ],
   supervisor: [
     { sec: 'فندقي', items: [
@@ -35,8 +47,12 @@ const NAV = {
       { id: 'p-expense-orders', ico: '🧾', lbl: 'سند شراء' },
       { id: 'p-supervisor-warehouse', ico: '📦', lbl: 'المستودع' },
       { id: 'p-users-mgmt',ico: '👥', lbl: 'إدارة الموظفين' },
+      { id: 'p-leaves-contracts', ico: '🏖️', lbl: 'الإجازات' },
       { id: 'p-sup-tasks', ico: '📌', lbl: 'مهامي' },
       { id: 'p-settings',   ico: '⚙️', lbl: 'الإعدادات' },
+    ]},
+    { sec: 'المحادثات', items: [
+      { id: 'p-communications', ico: '💬', lbl: 'مركز التواصل' },
     ]},
   ],
   superfv: [
@@ -48,12 +64,18 @@ const NAV = {
       { id: 'p-sup-tasks', ico: '📌', lbl: 'مهامي' },
       { id: 'p-settings',   ico: '⚙️', lbl: 'الإعدادات' },
     ]},
+    { sec: 'المحادثات', items: [
+      { id: 'p-communications', ico: '💬', lbl: 'مركز التواصل' },
+    ]},
   ],
   cleaner: [
     { sec: 'عملي', items: [
       { id: 'p-cl-rooms',  ico: '🏠', lbl: 'الغرف' },
       { id: 'p-cl-report', ico: '📋', lbl: 'تقرير غرفة' },
       { id: 'p-settings',   ico: '⚙️', lbl: 'الإعدادات' },
+    ]},
+    { sec: 'المحادثات', items: [
+      { id: 'p-communications', ico: '💬', lbl: 'مركز التواصل' },
     ]},
   ],
   maintenance: [
@@ -62,12 +84,18 @@ const NAV = {
       { id: 'p-mn-job',   ico: '✅', lbl: 'إغلاق مهمة' },
       { id: 'p-settings',  ico: '⚙️', lbl: 'الإعدادات' },
     ]},
+    { sec: 'المحادثات', items: [
+      { id: 'p-communications', ico: '💬', lbl: 'مركز التواصل' },
+    ]},
   ],
   reception: [
     { sec: 'عملي', items: [
       { id: 'p-rc-report', ico: '📝', lbl: 'تقرير الاستقبال' },
       { id: 'p-rc-prices', ico: '🏷️', lbl: 'أسعار المنافسين' },
       { id: 'p-settings',  ico: '⚙️', lbl: 'الإعدادات' },
+    ]},
+    { sec: 'المحادثات', items: [
+      { id: 'p-communications', ico: '💬', lbl: 'مركز التواصل' },
     ]},
   ],
   accountant: [
@@ -76,6 +104,9 @@ const NAV = {
       { id: 'p-expense-orders', ico: '🧾', lbl: 'مراجعة السندات' },
       { id: 'p-warehouse-manager', ico: '🏬', lbl: 'تقرير المستودع' },
       { id: 'p-settings', ico: '⚙️', lbl: 'الإعدادات' },
+    ]},
+    { sec: 'المحادثات', items: [
+      { id: 'p-communications', ico: '💬', lbl: 'مركز التواصل' },
     ]},
   ],
 };
@@ -113,3 +144,12 @@ const CHECKLIST = [
 
 // Our base room price for comparison
 const OUR_PRICE = 450;
+
+NAV.warehouse_manager = [
+  { sec: 'الرئيسية', items: [
+    { id: 'p-warehouse-manager', ico: '🏬', lbl: 'المستودع' },
+  ]},
+  { sec: 'المحادثات', items: [
+    { id: 'p-communications', ico: '💬', lbl: 'الرسائل' },
+  ]},
+];

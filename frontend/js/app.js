@@ -8,6 +8,7 @@
 window.onclick = (e) => {
   if (e.target.classList.contains('modal-ov')) {
     e.target.classList.remove('show');
+    e.target.style.display = 'none';
   }
 };
 

@@ -56,10 +56,14 @@ function showPg(id) {
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('act'));
   const n = document.getElementById('ni-' + id);
   if (n) n.classList.add('act');
-  
+
   if (id === 'p-users-mgmt' && typeof loadUsers === 'function') {
     if (typeof syncGlobalHotelSelectionUi === 'function') syncGlobalHotelSelectionUi();
     loadUsers();
+  }
+  if (id === 'p-leaves-contracts' && typeof loadLeavesContractsData === 'function') {
+    if (typeof syncGlobalHotelSelectionUi === 'function') syncGlobalHotelSelectionUi();
+    loadLeavesContractsData();
   }
   if ((id === 'p-admin-tasks' || id === 'p-sup-tasks') && typeof loadTasks === 'function') {
     if (typeof syncGlobalHotelSelectionUi === 'function') syncGlobalHotelSelectionUi();
@@ -115,8 +119,18 @@ function showPg(id) {
     loadWarehouseManagerPage();
   }
   if (id === 'p-settings' && typeof renderSettingsPage === 'function') {
+    if (typeof applyUiSettings === 'function') applyUiSettings();
     renderSettingsPage();
   }
+  if (id === 'p-communications' && typeof loadCommunicationContacts === 'function') {
+    loadCommunicationContacts();
+  }
+  if (id === 'p-all-chats' && typeof loadAllChats === 'function') {
+    loadAllChats();
+  }
+
+  // Dispatch global custom event so modules can observe page changes (e.g. communications polling)
+  document.dispatchEvent(new CustomEvent('pageChanged', { detail: id }));
 
   if (typeof refreshNavBadges === 'function') {
     refreshNavBadges();
@@ -170,7 +184,7 @@ async function refreshNavBadges() {
 
   try {
     const role = user.role;
-    const scopedHotelId = (typeof activeAdminHotelFilter !== 'undefined' && activeAdminHotelFilter)
+    const scopedHotelId = (typeof activeAdminHotelFilter !== 'undefined' && activeAdminHotelFilter && activeAdminHotelFilter !== 'all')
       ? String(activeAdminHotelFilter)
       : (user.hotel_id ? String(user.hotel_id) : '');
 
@@ -274,6 +288,12 @@ function filterHotel(el, key) {
   }
   if (typeof loadAdminReportsData === 'function') {
     loadAdminReportsData();
+  }
+  if (typeof loadLeavesContractsData === 'function') {
+    const p = document.getElementById('p-leaves-contracts');
+    if (p && p.classList.contains('act')) {
+      loadLeavesContractsData();
+    }
   }
 }
 

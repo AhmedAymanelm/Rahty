@@ -16,6 +16,9 @@ from models.maintenance import MaintenanceReport
 from models.broadcast import Broadcast, BroadcastRead
 from models.finance import ShiftReport, Expense, FinanceAuditLog, CompetitorPrice, OurPriceSetting, WarehouseItem
 from models.attendance import AttendanceSession, AttendancePolicy
+from models.warning import EmployeeWarning
+from models.leave_request import LeaveRequest
+from models.direct_message import DirectMessage
 from services.auth_service import hash_password
 from database import SessionLocal
 from routers import auth as auth_router
@@ -50,6 +53,8 @@ from routers import tasks as tasks_router
 app.include_router(tasks_router.router)
 from routers import rooms as rooms_router
 app.include_router(rooms_router.router)
+from routers import room_types as room_types_router
+app.include_router(room_types_router.router)
 from routers import maintenance as maintenance_router
 app.include_router(maintenance_router.router)
 from routers import dashboard as dashboard_router
@@ -58,6 +63,10 @@ from routers import finance as finance_router
 app.include_router(finance_router.router)
 from routers import broadcasts as broadcasts_router
 app.include_router(broadcasts_router.router)
+from routers import shifts as shifts_router
+app.include_router(shifts_router.router)
+from routers import checklist as checklist_router
+app.include_router(checklist_router.router)
 
 # Serve frontend from the same host/port as the API.
 frontend_dir = Path(__file__).resolve().parent.parent / "frontend"

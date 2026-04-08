@@ -148,7 +148,11 @@ function renderUsersTable() {
       <td class="dim" style="font-size:.85rem">${hotelName}</td>
       <td>${activeBadge(u.is_active)}</td>
       <td>
-        <button class="btn" style="padding:4px 8px;font-size:.75rem" onclick="openEditUserModal(${u.id})">تعديل</button>
+        <div class="ep-actions-row">
+          <button class="btn br bsm" title="إنذار" onclick="openWarningModal(${u.id})">⚠️</button>
+          <button class="btn bo bsm" title="محادثة" onclick="openEmployeeProfile(${u.id});setTimeout(()=>switchProfileTab('profile-tab-conversations'),200)">💬</button>
+          <button class="btn bg bsm" title="عرض" onclick="openEmployeeProfile(${u.id})">👁️ عرض</button>
+        </div>
       </td>
     `;
     tbody.appendChild(tr);
@@ -199,6 +203,7 @@ function roleLabel(role) {
   if (role === 'maintenance') return 'فني صيانة';
   if (role === 'reception') return 'استقبال';
   if (role === 'accountant') return 'محاسب';
+  if (role === 'warehouse_manager') return 'مسؤول مستودع';
   return role;
 }
 
@@ -240,7 +245,8 @@ async function loadUsers() {
       return;
     }
 
-    const users = await apiRequest(`/auth/users?include_inactive=true&hotel_id=${encodeURIComponent(selectedHotel)}`);
+    const hotelQuery = (selectedHotel && selectedHotel !== 'all') ? `&hotel_id=${encodeURIComponent(selectedHotel)}` : '';
+    const users = await apiRequest(`/auth/users?include_inactive=true${hotelQuery}`);
     if (!users) return;
 
     usersCache = users;
@@ -280,6 +286,13 @@ async function openEditUserModal(userId) {
   if (userEl) userEl.value = row.username || '';
   if (roleEl) roleEl.value = row.role || 'reception';
   if (activeEl) activeEl.value = row.is_active === false ? 'inactive' : 'active';
+  
+  const extras = ['national-id', 'email', 'phone', 'contract-type', 'hiring-date', 'nationality', 'basic-salary'];
+  const keys = ['national_id', 'email', 'phone_number', 'contract_type', 'hiring_date', 'nationality', 'basic_salary'];
+  extras.forEach((id, i) => {
+    const el = document.getElementById(`eu-${id}`);
+    if (el) el.value = row[keys[i]] || '';
+  });
 
   if (hotelEl) {
     hotelEl.innerHTML = '<option value="">جاري تحميل الفنادق...</option>';
@@ -345,6 +358,13 @@ async function submitUserEdit() {
     role,
     hotel_id,
     is_active: activeRaw !== 'inactive',
+    national_id: document.getElementById('eu-national-id')?.value.trim() || null,
+    email: document.getElementById('eu-email')?.value.trim() || null,
+    phone_number: document.getElementById('eu-phone')?.value.trim() || null,
+    contract_type: document.getElementById('eu-contract-type')?.value || "دوام كامل",
+    hiring_date: document.getElementById('eu-hiring-date')?.value || null,
+    nationality: document.getElementById('eu-nationality')?.value.trim() || null,
+    basic_salary: document.getElementById('eu-basic-salary')?.value ? parseFloat(document.getElementById('eu-basic-salary').value) : null,
   };
 
   const btn = document.getElementById('btn-edit-user');
@@ -388,6 +408,11 @@ async function openAddUserModal() {
   document.getElementById('u-fullname').value = '';
   document.getElementById('u-username').value = '';
   document.getElementById('u-password').value = '';
+  
+  const extras = ['national-id', 'email', 'phone', 'hiring-date', 'nationality', 'basic-salary'];
+  extras.forEach(id => { const el = document.getElementById(`u-${id}`); if (el) el.value = ''; });
+  const cEl = document.getElementById('u-contract-type');
+  if (cEl) cEl.value = 'دوام كامل';
 
   const hotelSel = document.getElementById('u-hotel');
   hotelSel.innerHTML = '<option value="">جاري تحميل الفنادق...</option>';
@@ -446,7 +471,14 @@ async function submitNewUser() {
         password,
         full_name: fullname,
         role,
-        hotel_id: hotel_id ? parseInt(hotel_id) : null
+        hotel_id: hotel_id ? parseInt(hotel_id) : null,
+        national_id: document.getElementById('u-national-id')?.value.trim() || null,
+        email: document.getElementById('u-email')?.value.trim() || null,
+        phone_number: document.getElementById('u-phone')?.value.trim() || null,
+        contract_type: document.getElementById('u-contract-type')?.value || "دوام كامل",
+        hiring_date: document.getElementById('u-hiring-date')?.value || null,
+        nationality: document.getElementById('u-nationality')?.value.trim() || null,
+        basic_salary: document.getElementById('u-basic-salary')?.value ? parseFloat(document.getElementById('u-basic-salary').value) : null
       }),
     });
 

@@ -6,6 +6,13 @@ let incomeFiltersReady = false;
 let expenseFiltersReady = false;
 let warehouseFiltersReady = false;
 let warehouseManagerFiltersReady = false;
+let wmLastInventory = [];
+
+function fwWarehouseBadge(status) {
+  if (status === 'ok') return '<span class="badge b-green">كافي</span>';
+  if (status === 'low') return '<span class="badge b-orange">منخفض</span>';
+  return '<span class="badge b-red">⚠️ أقل من الحد</span>';
+}
 
 function fwMoney(v) {
   return `${Number(v || 0).toLocaleString('en-US')} ر`;
@@ -436,109 +443,152 @@ async function createWarehouseRequest() {
 
 async function loadWarehouseManagerPage() {
   const body = document.getElementById('wm-body');
-  if (!body) return;
+  const invBody = document.getElementById('wm-inv-body');
+  if (!body && !invBody) return; // Must have at least one to proceed
 
   const user = getStoredUser();
-  if (!warehouseManagerFiltersReady) {
+
+  // 1. Load Central Inventory Independently
+  if (invBody) {
+    invBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري التحميل...</td></tr>';
+    apiRequest('/finance/warehouse-items')
+      .then(items => {
+        wmLastInventory = Array.isArray(items) ? items : [];
+        invBody.innerHTML = '';
+        if (wmLastInventory.length === 0) {
+          invBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--dim)">لا توجد أصناف حالياً</td></tr>';
+        } else {
+          wmLastInventory.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${r.item_name}</td>
+              <td>${Number(r.quantity || 0).toLocaleString()} ${r.unit || ''}</td>
+              <td>${Number(r.reorder_level || 0).toLocaleString()} ${r.unit || ''}</td>
+              <td>${fwWarehouseBadge(r.status)}</td>
+              <td>
+                <button class="btn bb bsm" onclick="wmEditItem(${r.id})">✏️ تعديل</button>
+                <button class="btn bo bsm" onclick="wmConsumeItem(${r.id})">📤 صرف</button>
+              </td>
+            `;
+            invBody.appendChild(tr);
+          });
+        }
+      })
+      .catch(err => {
+        invBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--red)">⚠️ فشل التحميل: ${err.message}</td></tr>`;
+      });
+  }
+
+  // 2. Load Filters if needed
+  if (!warehouseManagerFiltersReady && body) {
     const requesterSel = document.getElementById('wm-requester');
     const itemSel = document.getElementById('wm-item');
-
-    if (itemSel) {
-      const items = await apiRequest('/finance/warehouse-items').catch(() => []);
-      itemSel.innerHTML = '<option value="all">كل الأصناف</option>';
-      (items || []).forEach((i) => {
-        const op = document.createElement('option');
-        op.value = String(i.id);
-        op.textContent = i.item_name;
-        itemSel.appendChild(op);
-      });
-    }
+    
+    // items for filter
+    apiRequest('/finance/warehouse-items').then(items => {
+        if (itemSel && Array.isArray(items)) {
+          itemSel.innerHTML = '<option value="all">كل الأصناف</option>';
+          items.forEach((i) => {
+            const op = document.createElement('option');
+            op.value = String(i.id);
+            op.textContent = i.item_name;
+            itemSel.appendChild(op);
+          });
+        }
+    }).catch(() => {});
 
     if (requesterSel && user?.role === 'admin') {
-      const users = await apiRequest('/auth/users').catch(() => []);
-      requesterSel.innerHTML = '<option value="all">كل المشرفين</option>';
-      (users || [])
-        .filter((u) => u.role === 'supervisor' || u.role === 'superfv')
-        .forEach((u) => {
-          const op = document.createElement('option');
-          op.value = String(u.id);
-          op.textContent = `${u.full_name} (${u.username})`;
-          requesterSel.appendChild(op);
-        });
+      apiRequest('/auth/users').then(users => {
+          if (Array.isArray(users)) {
+            requesterSel.innerHTML = '<option value="all">كل المشرفين</option>';
+            users.filter((u) => u.role === 'supervisor' || u.role === 'superfv')
+              .forEach((u) => {
+                const op = document.createElement('option');
+                op.value = String(u.id);
+                op.textContent = `${u.full_name} (${u.username})`;
+                requesterSel.appendChild(op);
+              });
+          }
+      }).catch(() => {});
     }
-
     warehouseManagerFiltersReady = true;
   }
 
-  if (user?.role === 'admin') {
-    const hotelWrap = document.getElementById('wm-hotel-wrap');
-    const hotelSel = document.getElementById('wm-hotel');
-    if (hotelWrap && hotelSel && hotelSel.dataset.loaded !== '1') {
-      hotelWrap.style.display = 'block';
-      const hotels = await apiRequest('/hotels').catch(() => []);
-      hotelSel.innerHTML = '<option value="all">كل الفنادق</option>';
-      (hotels || []).forEach((h) => {
-        const op = document.createElement('option');
-        op.value = String(h.id);
-        op.textContent = h.name;
-        hotelSel.appendChild(op);
+  // 3. Load Requests
+  if (body) {
+    if (user?.role === 'admin') {
+      const hotelWrap = document.getElementById('wm-hotel-wrap');
+      const hotelSel = document.getElementById('wm-hotel');
+      if (hotelWrap && hotelSel && hotelSel.dataset.loaded !== '1') {
+        hotelWrap.style.display = 'block';
+        apiRequest('/hotels').then(hotels => {
+            if (Array.isArray(hotels)) {
+              hotelSel.innerHTML = '<option value="all">كل الفنادق</option>';
+              hotels.forEach((h) => {
+                const op = document.createElement('option');
+                op.value = String(h.id);
+                op.textContent = h.name;
+                hotelSel.appendChild(op);
+              });
+              hotelSel.dataset.loaded = '1';
+            }
+        }).catch(() => {});
+      }
+    }
+
+    const status = document.getElementById('wm-status')?.value || 'pending';
+    const fromDate = document.getElementById('wm-from')?.value || '';
+    const toDate = document.getElementById('wm-to')?.value || '';
+    const hotel = document.getElementById('wm-hotel')?.value || 'all';
+    const requester = document.getElementById('wm-requester')?.value || 'all';
+    const item = document.getElementById('wm-item')?.value || 'all';
+    const search = (document.getElementById('wm-search')?.value || '').trim();
+
+    let endpoint = '/finance/warehouse-requests';
+    const params = [];
+    if (status !== 'all') params.push(`status_filter=${encodeURIComponent(status)}`);
+    if (fromDate) params.push(`from_date=${encodeURIComponent(fromDate)}`);
+    if (toDate) params.push(`to_date=${encodeURIComponent(toDate)}`);
+    if (hotel !== 'all') params.push(`hotel_id=${encodeURIComponent(hotel)}`);
+    if (requester !== 'all') params.push(`requester_id=${encodeURIComponent(requester)}`);
+    if (item !== 'all') params.push(`item_id=${encodeURIComponent(item)}`);
+    if (search) params.push(`search=${encodeURIComponent(search)}`);
+    if (params.length) endpoint += `?${params.join('&')}`;
+
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--dim)">جاري تحميل الطلبات...</td></tr>';
+    
+    apiRequest(endpoint)
+      .then(rows => {
+        const canReview = user && (user.role === 'superfv' || user.role === 'admin' || user.role === 'warehouse_manager');
+        body.innerHTML = '';
+        if (!rows || !rows.length) {
+          const hint = status === 'pending' ? 'لا توجد طلبات معلقة حالياً.' : 'لا توجد طلبات مطابقة.';
+          body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--dim)">${hint}</td></tr>`;
+          return;
+        }
+
+        rows.forEach((r) => {
+          const actions = (canReview && r.status === 'pending')
+            ? `<button class="btn bgr bsm" onclick="reviewWarehouseRequest(${r.id}, 'approved')">اعتماد</button>
+               <button class="btn br bsm" onclick="reviewWarehouseRequest(${r.id}, 'rejected')">رفض</button>`
+            : '<span class="dim" style="font-size:.8rem">عرض</span>';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${new Date(r.created_at).toLocaleDateString('en-CA')}</td>
+            <td>${r.requester_name || '-'}</td>
+            <td>${r.item_name || '-'}</td>
+            <td>${Number(r.quantity_requested || 0).toLocaleString()} ${r.unit || ''}</td>
+            <td>${r.quantity_approved ? `${Number(r.quantity_approved).toLocaleString()} ${r.unit || ''}` : '-'}</td>
+            <td>${fwStatusBadge(r.status)}</td>
+            <td>${actions}</td>
+          `;
+          body.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--red)">⚠️ فشل تحميل الطلبات: ${err.message}</td></tr>`;
       });
-      hotelSel.dataset.loaded = '1';
-    }
-  }
-
-  const status = document.getElementById('wm-status')?.value || 'pending';
-  const fromDate = document.getElementById('wm-from')?.value || '';
-  const toDate = document.getElementById('wm-to')?.value || '';
-  const hotel = document.getElementById('wm-hotel')?.value || 'all';
-  const requester = document.getElementById('wm-requester')?.value || 'all';
-  const item = document.getElementById('wm-item')?.value || 'all';
-  const search = (document.getElementById('wm-search')?.value || '').trim();
-
-  let endpoint = '/finance/warehouse-requests';
-  const params = [];
-  if (status !== 'all') params.push(`status_filter=${encodeURIComponent(status)}`);
-  if (fromDate) params.push(`from_date=${encodeURIComponent(fromDate)}`);
-  if (toDate) params.push(`to_date=${encodeURIComponent(toDate)}`);
-  if (hotel !== 'all') params.push(`hotel_id=${encodeURIComponent(hotel)}`);
-  if (requester !== 'all') params.push(`requester_id=${encodeURIComponent(requester)}`);
-  if (item !== 'all') params.push(`item_id=${encodeURIComponent(item)}`);
-  if (search) params.push(`search=${encodeURIComponent(search)}`);
-  if (params.length) endpoint += `?${params.join('&')}`;
-
-  try {
-    const rows = await apiRequest(endpoint);
-    const canReview = user && (user.role === 'superfv' || user.role === 'admin');
-
-    if (!rows || !rows.length) {
-      const hint = status === 'pending'
-        ? 'لا توجد طلبات معلقة حالياً. جرّب تغيير الحالة إلى "الكل".'
-        : 'لا توجد طلبات مطابقة للفلاتر الحالية. جرّب زر "تهيئة الفلاتر".';
-      body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--dim)">${hint}</td></tr>`;
-      return;
-    }
-
-    body.innerHTML = '';
-    rows.forEach((r) => {
-      const actions = (canReview && r.status === 'pending')
-        ? `<button class="btn bgr bsm" onclick="reviewWarehouseRequest(${r.id}, 'approved')">اعتماد</button>
-           <button class="btn br bsm" onclick="reviewWarehouseRequest(${r.id}, 'rejected')">رفض</button>`
-        : '<span class="dim" style="font-size:.8rem">عرض</span>';
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${new Date(r.created_at).toLocaleDateString('en-CA')}</td>
-        <td>${r.requester_name || '-'}</td>
-        <td>${r.item_name || '-'}</td>
-        <td>${Number(r.quantity_requested || 0).toLocaleString('en-US')} ${r.unit || ''}</td>
-        <td>${r.quantity_approved ? `${Number(r.quantity_approved).toLocaleString('en-US')} ${r.unit || ''}` : '-'}</td>
-        <td>${fwStatusBadge(r.status)}</td>
-        <td>${actions}</td>
-      `;
-      body.appendChild(tr);
-    });
-  } catch (err) {
-    body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--red)">${err.message}</td></tr>`;
   }
 }
 
@@ -683,4 +733,115 @@ async function reviewWarehouseRequest(requestId, status) {
   } catch (err) {
     if (typeof showToast === 'function') showToast(err.message, 'error');
   }
+}
+
+
+
+async function wmCreateItem() {
+  const nameEl = document.getElementById('wm-inv-name');
+  const qtyEl = document.getElementById('wm-inv-qty');
+  const reorderEl = document.getElementById('wm-inv-reorder');
+  const unitEl = document.getElementById('wm-inv-unit');
+
+  const item_name = (nameEl?.value || '').trim();
+  const quantity = Number(qtyEl?.value || 0);
+  const reorder_level = Number(reorderEl?.value || 0);
+  const unit = (unitEl?.value || '').trim() || 'قطعة';
+
+  if (!item_name) {
+    if (typeof showToast === 'function') showToast('يرجى إدخال اسم الصنف', 'warning');
+    return;
+  }
+
+  try {
+    await apiRequest('/finance/warehouse-items', {
+      method: 'POST',
+      body: JSON.stringify({ item_name, quantity, reorder_level, unit }),
+    });
+    if (nameEl) nameEl.value = '';
+    if (qtyEl) qtyEl.value = '';
+    if (reorderEl) reorderEl.value = '';
+    if (unitEl) unitEl.value = '';
+    if (typeof showToast === 'function') showToast('تمت إضافة الصنف بنجاح', 'success');
+    await loadWarehouseManagerPage();
+  } catch (err) {
+    if (typeof showToast === 'function') showToast(err.message, 'error');
+  }
+}
+
+async function wmEditItem(itemId) {
+  const row = (wmLastInventory || []).find(r => r.id === itemId);
+  if (!row) return;
+
+  const qty = await fwOpenInputDialog({
+    title: `✏️ تعديل الكمية: ${row.item_name}`,
+    subtitle: `الكمية الحالية: ${row.quantity}`,
+    placeholder: 'الكمية الجديدة...',
+    defaultValue: row.quantity,
+    confirmLabel: 'حفظ',
+    required: true
+  });
+  if (qty === null) return;
+
+  try {
+    await apiRequest(`/finance/warehouse-items/${itemId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ quantity: Number(qty) }),
+    });
+    if (typeof showToast === 'function') showToast('تم التحديث', 'success');
+    await loadWarehouseManagerPage();
+  } catch (err) {
+    if (typeof showToast === 'function') showToast(err.message, 'error');
+  }
+}
+
+async function wmConsumeItem(itemId) {
+  const row = (wmLastInventory || []).find(r => r.id === itemId);
+  if (!row) return;
+
+  const qty = await fwOpenInputDialog({
+    title: `📤 صرف من الصنف: ${row.item_name}`,
+    subtitle: `المتاح: ${row.quantity}`,
+    placeholder: 'الكمية المصروفة...',
+    confirmLabel: 'تأكيد الصرف',
+    confirmClass: 'br',
+    required: true
+  });
+  if (qty === null) return;
+
+  try {
+    await apiRequest(`/finance/warehouse-items/${itemId}/consume`, {
+      method: 'POST',
+      body: JSON.stringify({ quantity: Number(qty) }),
+    });
+    if (typeof showToast === 'function') showToast('تم الصرف بنجاح', 'success');
+    await loadWarehouseManagerPage();
+  } catch (err) {
+    if (typeof showToast === 'function') showToast(err.message, 'error');
+  }
+}
+
+function wmExportCsv() {
+  if (!wmLastInventory.length) {
+    if (typeof showToast === 'function') showToast('لا توجد بيانات للتصدير', 'warning');
+    return;
+  }
+  const headers = ['الصنف', 'الكمية', 'الوحدة', 'حد إعادة الطلب', 'الحالة'];
+  const rows = wmLastInventory.map(r => [
+    r.item_name,
+    r.quantity,
+    r.unit,
+    r.reorder_level,
+    r.status
+  ]);
+  
+  const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `warehouse-inventory-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }

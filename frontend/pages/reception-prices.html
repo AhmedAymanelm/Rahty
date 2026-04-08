@@ -1,15 +1,16 @@
 <!-- RECEPTION PRICES -->
 <div id="p-rc-prices" class="pg">
-  <div class="ph"><h2>🏷️ تسعيرات الفنادق المجاورة</h2><p>سجّل أسعار المنافسين لمقارنتها بأسعارنا</p></div>
-  <div class="card"><div class="ct">➕ تسجيل سعر منافس</div>
-    <div class="fgrid g3">
-      <div class="fg"><label>اسم الفندق المنافس</label><input type="text" id="cp-name" placeholder="مثال: فندق هيلتون"></div>
-      <div class="fg"><label>سعر الغرفة العادية (ريال)</label><input type="number" id="cp-price-standard" placeholder="0"></div>
-      <div class="fg"><label>سعر الدبل/ديلوكس (ريال)</label><input type="number" id="cp-price-deluxe" placeholder="0"></div>
-      <div class="fg"><label>سعر الجناح (ريال)</label><input type="number" id="cp-price-suite" placeholder="0"></div>
-      <div class="fg"><label>سعر الغرفة العائلية (ريال)</label><input type="number" id="cp-price-family" placeholder="0"></div>
+  <div class="ph">
+    <h2>🏷️ تسعيرات الفنادق المجاورة</h2>
+    <p>سجّل أسعار المنافسين لمقارنتها بأسعارنا</p>
+  </div>
+  <div class="card">
+    <div class="ct">➕ تسجيل سعر منافس</div>
+    <div class="fgrid g3" id="cp-dynamic-inputs">
+      <div class="fg" style="grid-column: 1 / -1;"><div class="dim">جاري تحميل أنواع الغرف...</div></div>
     </div>
-    <div class="fg"><label>ملاحظة</label><input type="text" id="cp-note" placeholder="مثال: سعر عطلة نهاية الأسبوع"></div>
+    <div class="fg"><label>ملاحظة</label><input type="text" id="cp-note" placeholder="مثال: سعر عطلة نهاية الأسبوع">
+    </div>
     <button class="btn bg" onclick="addCompPrice()">+ إضافة السعر</button>
   </div>
   <div class="card">
@@ -21,12 +22,25 @@
       </div>
     </div>
   </div>
-  <div class="card"><div class="ct">📋 سجل الأسعار المُدخلة</div>
-    <div class="tw"><table id="prices-table">
-      <thead><tr><th>الفندق</th><th>نوع الغرفة</th><th>السعر</th><th>الفرق عنا</th><th>الوقت</th></tr></thead>
-      <tbody id="cp-table-body">
-        <tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري تحميل الأسعار...</td></tr>
-      </tbody>
-    </table></div>
+  <div class="card">
+    <div class="ct">📋 سجل الأسعار المُدخلة</div>
+    <div class="tw">
+      <table id="prices-table">
+        <thead>
+          <tr>
+            <th>الفندق</th>
+            <th>نوع الغرفة</th>
+            <th>السعر</th>
+            <th>الفرق عنا</th>
+            <th>الوقت</th>
+          </tr>
+        </thead>
+        <tbody id="cp-table-body">
+          <tr>
+            <td colspan="5" style="text-align:center;color:var(--dim)">جاري تحميل الأسعار...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

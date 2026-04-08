@@ -16,7 +16,7 @@ async function loadRooms() {
     if (!rooms) return;
 
     container.innerHTML = '';
-    
+
     // Update stats
     const readyCount = rooms.filter(r => r.status === 'ready').length;
     const dirtyCount = rooms.filter(r => r.status === 'dirty' || r.status === 'cleaning').length;
@@ -31,7 +31,7 @@ async function loadRooms() {
 
     rooms.forEach(r => {
       const rc = document.createElement('div');
-      
+
       // Map status to CSS classes and labels
       let statusClass = '';
       let statusLabel = '';
@@ -68,7 +68,7 @@ async function loadRooms() {
         rc.onclick = () => {
           // When clicking a dirty room, mark it as "cleaning" then open checklist
           if (r.status === 'dirty') {
-             updateRoomStatus(r.id, 'cleaning');
+            updateRoomStatus(r.id, 'cleaning');
           }
           goCleanRoom(r.number, r.id);
         };
@@ -104,6 +104,36 @@ function canCreateRooms() {
   return ['admin', 'supervisor', 'superfv'].includes(user?.role);
 }
 
+async function populateRoomTypesSelect(selectId, hotelId) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  try {
+    const endpoint = hotelId ? `/room-types?hotel_id=${hotelId}` : '/room-types';
+    const types = await apiRequest(endpoint);
+
+    select.innerHTML = '';
+
+    if (types && types.length > 0) {
+      types.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.name;
+        opt.textContent = t.name;
+        select.appendChild(opt);
+      });
+    } else {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'يرجى تعريف أنواع الغرف أولاً في الإعدادات';
+      select.appendChild(opt);
+    }
+  } catch (err) {
+    console.error('Failed to load room types:', err);
+    const select2 = document.getElementById(selectId);
+    if (select2) select2.innerHTML = '<option value="">تعذر التحميل</option>';
+  }
+}
+
 async function initRoomCreateForms() {
   const user = getStoredUser();
   if (!user) return;
@@ -122,18 +152,21 @@ async function initRoomCreateForms() {
   if (!canCreateRooms()) return;
 
   await bindAdminRoomCreateForm(user);
-  bindSupervisorRoomCreateForm(user);
+  await bindSupervisorRoomCreateForm(user);
 }
 
 async function bindAdminRoomCreateForm(user) {
   const form = document.getElementById('ad-room-create-form');
-  if (!form || form.dataset.bound === '1' || user.role !== 'admin') return;
+  if (!form || user.role !== 'admin') return;
 
   const hotelSelect = document.getElementById('ad-room-hotel');
+  const typeSelect = document.getElementById('ad-room-type');
+
+  // Load hotel list if not already done (only once)
   if (hotelSelect && hotelSelect.options.length <= 1) {
     try {
       const hotels = await apiRequest('/hotels');
-      if (hotels && hotelSelect) {
+      if (hotels && hotels.length > 0) {
         hotels.forEach((h) => {
           const op = document.createElement('option');
           op.value = String(h.id);
@@ -142,10 +175,42 @@ async function bindAdminRoomCreateForm(user) {
         });
       }
     } catch (_) {
-      // Ignore loading failure, create will fail with clear API message.
+      // ignore
     }
   }
 
+  if (hotelSelect && typeSelect) {
+    // Bind change listener only once
+    if (!hotelSelect.dataset.listenerBound) {
+      hotelSelect.addEventListener('change', async () => {
+        const hid = hotelSelect.value;
+        if (hid) {
+          await populateRoomTypesSelect('ad-room-type', hid);
+        } else {
+          typeSelect.innerHTML = '<option value="">اختر الفندق أولاً</option>';
+        }
+      });
+      hotelSelect.dataset.listenerBound = '1';
+    }
+
+    // ALWAYS sync hotel selection with active dashboard filter
+    const activeFilter = (typeof activeAdminHotelFilter !== 'undefined' && activeAdminHotelFilter && activeAdminHotelFilter !== 'all')
+      ? String(activeAdminHotelFilter) : '';
+    if (activeFilter) {
+      const matchingOption = Array.from(hotelSelect.options).find(o => o.value === activeFilter);
+      if (matchingOption) hotelSelect.value = activeFilter;
+    }
+
+    // ALWAYS load room types for currently selected hotel
+    if (hotelSelect.value) {
+      await populateRoomTypesSelect('ad-room-type', hotelSelect.value);
+    } else {
+      typeSelect.innerHTML = '<option value="">اختر الفندق أولاً</option>';
+    }
+  }
+
+  // Bind submit listener only once
+  if (form.dataset.bound === '1') return;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('ad-room-submit');
@@ -155,16 +220,20 @@ async function bindAdminRoomCreateForm(user) {
       btn.textContent = '⏳ جاري الإضافة...';
     }
 
+    const hotelId = parseInt(document.getElementById('ad-room-hotel')?.value || '', 10);
     try {
       const payload = {
         number: (document.getElementById('ad-room-number')?.value || '').trim(),
-        room_type: document.getElementById('ad-room-type')?.value || 'Single',
+        room_type: document.getElementById('ad-room-type')?.value || '',
         status: document.getElementById('ad-room-status')?.value || 'ready',
-        hotel_id: parseInt(document.getElementById('ad-room-hotel')?.value || '', 10),
+        hotel_id: hotelId,
       };
 
       if (!payload.number || Number.isNaN(payload.hotel_id)) {
         throw new Error('يرجى تعبئة رقم الغرفة والفندق');
+      }
+      if (!payload.room_type) {
+        throw new Error('يرجى اختيار نوع الغرفة');
       }
 
       await apiRequest('/rooms', {
@@ -174,6 +243,12 @@ async function bindAdminRoomCreateForm(user) {
 
       showToast('✅ تم إضافة الغرفة بنجاح', 'success');
       form.reset();
+      // Re-select the hotel and reload types after form reset
+      if (hotelId) {
+        const hotelSelectEl = document.getElementById('ad-room-hotel');
+        if (hotelSelectEl) hotelSelectEl.value = String(hotelId);
+        await populateRoomTypesSelect('ad-room-type', hotelId);
+      }
       if (typeof loadDashboardOverview === 'function') {
         await loadDashboardOverview();
       }
@@ -190,12 +265,17 @@ async function bindAdminRoomCreateForm(user) {
   form.dataset.bound = '1';
 }
 
-function bindSupervisorRoomCreateForm(user) {
+async function bindSupervisorRoomCreateForm(user) {
   const form = document.getElementById('sup-room-create-form');
   if (!form || form.dataset.bound === '1' || !['supervisor', 'superfv'].includes(user.role)) return;
 
   const hotelName = document.getElementById('sup-room-hotel-name');
   if (hotelName) hotelName.value = user.hotel_name || `فندق #${user.hotel_id || '-'}`;
+
+  // Load room types dynamically for this supervisor's hotel
+  if (user.hotel_id) {
+    await populateRoomTypesSelect('sup-room-type', user.hotel_id);
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -209,13 +289,16 @@ function bindSupervisorRoomCreateForm(user) {
     try {
       const payload = {
         number: (document.getElementById('sup-room-number')?.value || '').trim(),
-        room_type: document.getElementById('sup-room-type')?.value || 'Single',
+        room_type: document.getElementById('sup-room-type')?.value || '',
         status: document.getElementById('sup-room-status')?.value || 'ready',
         hotel_id: user.hotel_id,
       };
 
       if (!payload.number || !payload.hotel_id) {
-        throw new Error('يرجى تعبئة رقم الغرفة بشكل صحيح');
+        throw new Error('بيانات الغرفة غير مكتملة');
+      }
+      if (!payload.room_type) {
+        throw new Error('يرجى اختيار نوع الغرفة أولاً من الإعدادات');
       }
 
       await apiRequest('/rooms', {
@@ -226,6 +309,8 @@ function bindSupervisorRoomCreateForm(user) {
       showToast('✅ تم إضافة الغرفة لفندقك بنجاح', 'success');
       form.reset();
       if (hotelName) hotelName.value = user.hotel_name || `فندق #${user.hotel_id || '-'}`;
+      // Reload types after reset
+      if (user.hotel_id) await populateRoomTypesSelect('sup-room-type', user.hotel_id);
       if (typeof loadDashboardOverview === 'function') {
         await loadDashboardOverview();
       }

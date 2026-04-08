@@ -7,12 +7,12 @@ let arLastData = null;
 
 function arIsAdmin() {
   const user = getStoredUser();
-  return user?.role === 'admin';
+  return user?.role === 'admin' || user?.role === 'warehouse_manager';
 }
 
 function arCanAddWarehouse() {
   const user = getStoredUser();
-  return ['admin', 'supervisor', 'superfv'].includes(user?.role);
+  return ['admin', 'supervisor', 'superfv', 'warehouse_manager'].includes(user?.role);
 }
 
 async function initAdminReportsFilters() {

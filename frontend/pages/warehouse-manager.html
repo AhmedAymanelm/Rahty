@@ -3,13 +3,27 @@
   <div class="ph"><h2>🏬 مسؤول المستودع</h2></div>
 
   <div class="card" style="border-color:var(--gold);">
-    <div class="ct">ℹ️ طريقة الاستخدام</div>
-    <div class="dim" style="line-height:1.9;">
-      1) هذه الصفحة للمراجعة فقط (اعتماد/رفض طلبات المستودع).<br>
-      2) الأزرار تظهر بجانب أي طلب حالته <strong>معلقة</strong> فقط.<br>
-      3) إنشاء الطلب يتم من حساب المشرف عبر صفحة "المستودع".
+    <div class="ct">📦 المستودع المركزي</div>
+    <div class="ar-wh-form">
+      <div class="fg ar-fg"><label>اسم الصنف</label><input id="wm-inv-name" type="text" placeholder="مثال: مناشف حمام"></div>
+      <div class="fg ar-fg"><label>الكمية</label><input id="wm-inv-qty" type="number" min="0" placeholder="0"></div>
+      <div class="fg ar-fg"><label>حد إعادة الطلب</label><input id="wm-inv-reorder" type="number" min="0" placeholder="0"></div>
+      <div class="fg ar-fg"><label>الوحدة</label><input id="wm-inv-unit" type="text" placeholder="قطعة / لتر"></div>
+      <button class="btn bg ar-wh-add-btn" onclick="wmCreateItem()">➕ إضافة صنف</button>
     </div>
+    <div style="margin-bottom:15px; display:flex; gap:10px;">
+       <button class="btn bo" onclick="wmExportCsv()">⬇️ تصدير المستودع CSV</button>
+       <button class="btn bb" onclick="loadWarehouseManagerPage()">🔄 تحديث المخزون</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>الصنف</th><th>الكمية</th><th>حد إعادة الطلب</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="wm-inv-body">
+        <tr><td colspan="5" style="text-align:center;color:var(--dim)">جاري التحميل...</td></tr>
+      </tbody>
+    </table></div>
   </div>
+
+  <div class="ph" style="margin-top:30px;"><h2>📋 طلبات المستودع (بانتظار الاعتماد)</h2></div>
 
   <div class="card">
     <div class="fgrid" style="margin-bottom:10px;align-items:end;">

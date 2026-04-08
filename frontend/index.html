@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="css/sidebar.css?v=20260406-2">
   <link rel="stylesheet" href="css/components.css?v=20260406-11">
   <link rel="stylesheet" href="css/pages.css?v=20260406-8">
-  <link rel="stylesheet" href="css/modals.css?v=20260406-1">
+  <link rel="stylesheet" href="css/modals.css?v=20260408-104">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 
@@ -101,9 +101,14 @@
         <button class="modal-close" onclick="closeModal('addUserModal')">✕</button>
       </div>
       <div id="u-error" class="login-error"></div>
+      
       <div class="fgrid">
-        <div class="fg"><label>الاسم الكامل</label><input type="text" id="u-fullname" placeholder="مثال: أحمد محمد"></div>
-        <div class="fg"><label>اسم المستخدم</label><input type="text" id="u-username" dir="ltr" placeholder="أحرف إنجليزية فقط"></div>
+        <div class="fg"><label>الاسم الكامل</label><input type="text" id="u-fullname" placeholder="اسم الموظف"></div>
+        <div class="fg"><label>رقم الهوية</label><input type="text" id="u-national-id" placeholder="1XXXXXXXXX" dir="ltr"></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>البريد الإلكتروني</label><input type="email" id="u-email" placeholder="email@rahati.com" dir="ltr"></div>
+        <div class="fg"><label>رقم الجوال</label><input type="text" id="u-phone" placeholder="05XXXXXXXX" dir="ltr"></div>
       </div>
       <div class="fgrid">
         <div class="fg"><label>الدور الوظيفي</label>
@@ -114,18 +119,34 @@
             <option value="maintenance">🔧 فني صيانة</option>
             <option value="reception">🛎️ موظف استقبال</option>
             <option value="accountant">💼 محاسب</option>
+            <option value="warehouse_manager">🏬 مسؤول المستودع</option>
             <option value="admin">👑 الإدارة العامة</option>
           </select>
         </div>
         <div class="fg"><label>الفندق التابع له</label>
           <select id="u-hotel">
             <option value="">جميع الفنادق (إدارة فقط)</option>
-            <!-- يتم تعبئتها من الـ API -->
           </select>
         </div>
       </div>
-      <div class="fg"><label>كلمة المرور</label><input type="password" id="u-password" dir="ltr"></div>
-      <button class="btn bg" onclick="submitNewUser()" id="btn-add-user">✅ إضافة الموظف</button>
+      <div class="fgrid">
+        <div class="fg"><label>نوع العقد</label>
+          <select id="u-contract-type">
+            <option value="دوام كامل">دوام كامل</option>
+            <option value="دوام جزئي">دوام جزئي</option>
+            <option value="مؤقت">مؤقت</option>
+          </select>
+        </div>
+        <div class="fg"><label>تاريخ التعيين</label><input type="date" id="u-hiring-date"></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>الجنسية</label><input type="text" id="u-nationality" placeholder="سعودي / مقيم..."></div>
+        <div class="fg"><label>الراتب الأساسي (ريال)</label><input type="number" id="u-basic-salary" placeholder="0"></div>
+      </div>
+      <div class="fg"><label>اسم المستخدم للدخول</label><input type="text" id="u-username" dir="ltr" placeholder="user@rahati"></div>
+      <div class="fg"><label>كلمة المرور المبدئية</label><input type="password" id="u-password" dir="ltr" placeholder="........"></div>
+      
+      <button class="btn bg" onclick="submitNewUser()" id="btn-add-user" style="margin-top: 10px;">✅ إضافة الموظف</button>
     </div>
   </div>
 
@@ -137,9 +158,14 @@
         <button class="modal-close" onclick="closeModal('editUserModal')">✕</button>
       </div>
       <div id="eu-error" class="login-error"></div>
+      
       <div class="fgrid">
-        <div class="fg"><label>الاسم الكامل</label><input type="text" id="eu-fullname"></div>
-        <div class="fg"><label>اسم المستخدم</label><input type="text" id="eu-username" dir="ltr" readonly></div>
+        <div class="fg"><label>الاسم الكامل</label><input type="text" id="eu-fullname" placeholder="اسم الموظف"></div>
+        <div class="fg"><label>رقم الهوية</label><input type="text" id="eu-national-id" placeholder="1XXXXXXXXX" dir="ltr"></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>البريد الإلكتروني</label><input type="email" id="eu-email" placeholder="email@rahati.com" dir="ltr"></div>
+        <div class="fg"><label>رقم الجوال</label><input type="text" id="eu-phone" placeholder="05XXXXXXXX" dir="ltr"></div>
       </div>
       <div class="fgrid">
         <div class="fg"><label>الدور الوظيفي</label>
@@ -150,22 +176,132 @@
             <option value="maintenance">🔧 فني صيانة</option>
             <option value="reception">🛎️ موظف استقبال</option>
             <option value="accountant">💼 محاسب</option>
+            <option value="warehouse_manager">🏬 مسؤول المستودع</option>
             <option value="admin">👑 الإدارة العامة</option>
           </select>
         </div>
         <div class="fg"><label>الفندق التابع له</label>
           <select id="eu-hotel">
-            <option value="">جاري تحميل الفنادق...</option>
+            <option value="">جميع الفنادق (إدارة فقط)</option>
           </select>
         </div>
       </div>
-      <div class="fg"><label>الحالة</label>
-        <select id="eu-active">
-          <option value="active">نشط</option>
-          <option value="inactive">موقوف</option>
+      <div class="fgrid">
+        <div class="fg"><label>نوع العقد</label>
+          <select id="eu-contract-type">
+            <option value="دوام كامل">دوام كامل</option>
+            <option value="دوام جزئي">دوام جزئي</option>
+            <option value="مؤقت">مؤقت</option>
+          </select>
+        </div>
+        <div class="fg"><label>تاريخ التعيين</label><input type="date" id="eu-hiring-date"></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>الجنسية</label><input type="text" id="eu-nationality" placeholder="سعودي / مقيم..."></div>
+        <div class="fg"><label>الراتب الأساسي (ريال)</label><input type="number" id="eu-basic-salary" placeholder="0"></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>اسم المستخدم للدخول</label><input type="text" id="eu-username" dir="ltr" readonly style="background:var(--dark3); opacity:0.7;"></div>
+        <div class="fg"><label>الحالة</label>
+          <select id="eu-active">
+            <option value="active">نشط</option>
+            <option value="inactive">موقوف</option>
+          </select>
+        </div>
+      </div>
+      
+      <button class="btn bg" onclick="submitUserEdit()" id="btn-edit-user" style="margin-top: 10px;">💾 حفظ التعديلات</button>
+    </div>
+  </div>
+
+  <!-- EMPLOYEE PROFILE MODAL — ملف الموظف الكامل -->
+  <div class="modal-ov" id="employeeProfileModal">
+    <div class="modal-box ep-modal">
+      <div class="modal-head">
+        <h3>🪪 ملف الموظف الكامل</h3>
+        <button class="modal-close" onclick="closeModal('employeeProfileModal')">✕</button>
+      </div>
+
+      <!-- Profile Header -->
+      <div class="ep-header">
+        <div class="ep-avatar">👤</div>
+        <div class="ep-header-info">
+          <div class="ep-name" id="ep-name">—</div>
+          <div class="ep-header-badges">
+            <span class="badge b-gold" id="ep-role-badge">—</span>
+            <span class="badge b-blue" id="ep-hotel-badge">—</span>
+            <span class="badge b-green" id="ep-status-badge">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-row" id="profile-tabs">
+        <button class="tb act" data-ep-tab="profile-tab-data" onclick="switchProfileTab('profile-tab-data')">📋 البيانات</button>
+        <button class="tb" data-ep-tab="profile-tab-tasks" onclick="switchProfileTab('profile-tab-tasks')">📌 المهام</button>
+        <button class="tb" data-ep-tab="profile-tab-conversations" onclick="switchProfileTab('profile-tab-conversations')">💬 محادثاته</button>
+        <button class="tb" data-ep-tab="profile-tab-warnings" onclick="switchProfileTab('profile-tab-warnings')">⚠️ الإنذارات</button>
+        <button class="tb" data-ep-tab="profile-tab-leaves" onclick="switchProfileTab('profile-tab-leaves')">🏖️ الإجازات</button>
+        <button class="tb" data-ep-tab="profile-tab-performance" onclick="switchProfileTab('profile-tab-performance')">📊 الأداء</button>
+      </div>
+
+      <!-- Tab Contents -->
+      <div id="profile-tab-data" class="ep-tab-content act">
+        <div id="ep-data-content"></div>
+      </div>
+      <div id="profile-tab-tasks" class="ep-tab-content">
+        <div id="ep-tasks-content"></div>
+      </div>
+      <div id="profile-tab-conversations" class="ep-tab-content">
+        <div id="ep-conversations-content"></div>
+      </div>
+      <div id="profile-tab-warnings" class="ep-tab-content">
+        <div id="ep-warnings-content"></div>
+      </div>
+      <div id="profile-tab-leaves" class="ep-tab-content">
+        <div id="ep-leaves-content"></div>
+      </div>
+      <div id="profile-tab-performance" class="ep-tab-content">
+        <div id="ep-performance-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WARNING MODAL — إصدار إنذار -->
+  <div class="modal-ov" id="warningModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>⚠️ إصدار إنذار</h3>
+        <button class="modal-close" onclick="closeModal('warningModal')">✕</button>
+      </div>
+      <div style="margin-bottom:14px;font-size:.9rem" id="warn-user-display-mode">
+        إصدار إنذار للموظف: <strong id="warn-user-name">—</strong>
+      </div>
+      <div style="margin-bottom:14px;font-size:.9rem; display:none;" id="warn-user-select-mode">
+        <label>اختر الموظف</label>
+        <select id="warn-user-select" style="width:100%; background:var(--dark3); color:var(--text); padding:8px; border:1px solid rgba(255,255,255,0.1); border-radius:6px;">
+          <option value="">جاري تحميل الموظفين...</option>
         </select>
       </div>
-      <button class="btn bg" onclick="submitUserEdit()" id="btn-edit-user">💾 حفظ التعديلات</button>
+      <input type="hidden" id="warn-user-id">
+      <div id="warn-error" class="login-error"></div>
+      <div class="fg">
+        <label>نوع الإنذار</label>
+        <select id="warn-type">
+          <option value="verbal">🟡 إنذار شفهي</option>
+          <option value="written">🟠 إنذار كتابي</option>
+          <option value="final">🔴 إنذار نهائي</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>سبب الإنذار</label>
+        <textarea id="warn-reason" placeholder="اكتب سبب الإنذار بالتفصيل..."></textarea>
+      </div>
+      <div class="fg">
+        <label>ملاحظات إضافية (اختياري)</label>
+        <input type="text" id="warn-notes" placeholder="ملاحظات إضافية...">
+      </div>
+      <button class="btn bg" onclick="submitWarning()" id="btn-submit-warning">⚠️ إصدار الإنذار</button>
     </div>
   </div>
 
@@ -200,11 +336,10 @@
           <div class="rb" onclick="selRole('supervisor')" id="r-supervisor"><span class="ri">🏢</span>مشرف الفندق</div>
           <div class="rb" onclick="selRole('superfv')" id="r-superfv"><span class="ri">🎯</span>سوبر فايزر</div>
           <div class="rb" onclick="selRole('cleaner')" id="r-cleaner"><span class="ri">🧹</span>عامل النظافة</div>
-          <div class="rb" onclick="selRole('maintenance')" id="r-maintenance"><span class="ri">🔧</span>فني الصيانة
-          </div>
-          <div class="rb" onclick="selRole('reception')" id="r-reception"><span class="ri">🛎️</span>موظف الاستقبال
-          </div>
+          <div class="rb" onclick="selRole('maintenance')" id="r-maintenance"><span class="ri">🔧</span>فني الصيانة</div>
+          <div class="rb" onclick="selRole('reception')" id="r-reception"><span class="ri">🛎️</span>موظف الاستقبال</div>
           <div class="rb" onclick="selRole('accountant')" id="r-accountant"><span class="ri">💼</span>المحاسب</div>
+          <div class="rb" onclick="selRole('warehouse_manager')" id="r-warehouse_manager"><span class="ri">🏬</span>مسؤول المستودع</div>
         </div>
         <div class="hotel-sel" id="hotel-sel">
           <label>اختر الفندق</label>
@@ -263,22 +398,26 @@
   </div>
 
   <!-- JS Files (order matters) -->
-  <script src="js/api.js?v=20260406-2"></script>
-  <script src="js/data.js?v=20260406-3"></script>
-  <script src="js/settings.js?v=20260406-5"></script>
-  <script src="js/modals.js?v=20260406-6"></script>
-  <script src="js/navigation.js?v=20260406-4"></script>
-  <script src="js/auth.js?v=20260406-9"></script>
-  <script src="js/tasks.js?v=20260406-4"></script>
-  <script src="js/checklist.js?v=20260406-2"></script>
-  <script src="js/rooms.js?v=20260406-2"></script>
-  <script src="js/users.js?v=20260406-5"></script>
-  <script src="js/maintenance.js?v=20260406-10"></script>
-  <script src="js/dashboard.js?v=20260406-21"></script>
-  <script src="js/admin-reports.js?v=20260406-5"></script>
-  <script src="js/reception.js?v=20260406-16"></script>
-  <script src="js/finance-workflows.js?v=20260407-1"></script>
-  <script src="js/app.js"></script>
+  <script src="js/api.js?v=20260408-745"></script>
+  <script src="js/data.js?v=20260408-745"></script>
+  <script src="js/settings.js?v=20260408-745"></script>
+  <script src="js/modals.js?v=20260408-745"></script>
+  <script src="js/navigation.js?v=20260408-745"></script>
+  <script src="js/auth.js?v=20260408-745"></script>
+  <script src="js/tasks.js?v=20260408-745"></script>
+  <script src="js/checklist.js?v=20260408-745"></script>
+  <script src="js/rooms.js?v=20260408-745"></script>
+  <script src="js/users.js?v=20260408-745"></script>
+  <script src="js/employee-profile.js?v=20260408-745"></script>
+  <script src="js/leaves-contracts.js?v=20260408-745"></script>
+  <script src="js/maintenance.js?v=20260408-745"></script>
+  <script src="js/dashboard.js?v=20260408-745"></script>
+  <script src="js/admin-reports.js?v=20260408-745"></script>
+  <script src="js/reception.js?v=20260408-745"></script>
+  <script src="js/finance-workflows.js?v=20260408-745"></script>
+  <script src="js/communications.js?v=20260408-745"></script>
+  <script src="js/all-chats.js?v=20260408-745"></script>
+  <script src="js/app.js?v=20260408-745"></script>
   <script>
     // Load all page templates
     const pageFiles = [
@@ -287,6 +426,7 @@
       'pages/expenses-orders.html',
       'pages/warehouse-manager.html',
       'pages/users-management.html',
+      'pages/leaves-contracts.html',
       'pages/admin-tasks.html',
       'pages/admin-maintenance.html',
       'pages/admin-reports.html',
@@ -302,13 +442,15 @@
       'pages/reception-prices.html',
       'pages/accountant-dashboard.html',
       'pages/settings.html',
+      'pages/communications.html',
+      'pages/all-chats.html',
     ];
 
     async function loadPages() {
       const container = document.getElementById('pages-container');
       for (const file of pageFiles) {
         try {
-          const res = await fetch(`${file}?v=20260406-20`, { cache: 'no-store' });
+          const res = await fetch(`${file}?v=20260408-751`, { cache: 'no-store' });
           if (res.ok) {
             const html = await res.text();
             container.insertAdjacentHTML('beforeend', html);

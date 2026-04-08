@@ -1,53 +1,416 @@
 <div class="pg" id="p-settings">
-  <div class="ph">
-    <div><h2>⚙️ الإعدادات</h2><p>تخصيص الإشعارات وتحديث الواجهة</p></div>
+  <div class="pg-head" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">⚙️ الإعدادات والقوائم</h2>
+      <p class="dim" style="margin-top:5px; font-size:0.9rem;">تخصيص النظام بالكامل — كل شيء قابل للتعديل والإضافة والحذف</p>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="ct">👤 إعدادات الحساب</div>
-    <div class="fgrid g3" style="margin-top:10px">
-      <div class="fg">
-        <label>اسم المستخدم الجديد</label>
-        <input type="text" id="st-username" placeholder="اتركه كما هو إن لم ترد تغييره">
+  <!-- TABS -->
+  <div id="settings-tab-bar" style="display:flex; gap:4px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:0; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none;">
+    <button class="stab act" data-stab="st-account" onclick="switchSettingsTab('st-account',this)">👤 حسابي</button>
+    <button class="stab"     data-stab="st-hotels"  onclick="switchSettingsTab('st-hotels',this)"  id="st-tab-hotels">🏨 الفنادق</button>
+    <button class="stab"     data-stab="st-roles"   onclick="switchSettingsTab('st-roles',this)">🔐 الأدوار والتخصيص</button>
+    <button class="stab"     data-stab="st-shifts"  onclick="switchSettingsTab('st-shifts',this)">⏰ الورديات</button>
+    <button class="stab"     data-stab="st-checklist" onclick="switchSettingsTab('st-checklist',this)">✅ قائمة فحص الغرف</button>
+    <button class="stab"     data-stab="st-room-types" onclick="switchSettingsTab('st-room-types',this)">🛏️ أنواع الغرف وأسعارها</button>
+    <button class="stab"     data-stab="st-notifications" onclick="switchSettingsTab('st-notifications',this)">🔔 الإشعارات</button>
+    <button class="stab"     data-stab="st-system"  onclick="switchSettingsTab('st-system',this)">🖥️ إعدادات النظام</button>
+  </div>
+
+  <!-- ============ TAB: ACCOUNT ============ -->
+  <div id="st-account" class="st-tab-content act">
+    <div class="card">
+      <div class="ct">👤 بيانات الحساب</div>
+      <div class="fgrid g3" style="margin-top:12px">
+        <div class="fg">
+          <label>اسم المستخدم</label>
+          <input type="text" id="st-username" placeholder="اتركه فارغاً إن لم ترد تغييره">
+        </div>
+        <div class="fg">
+          <label>كلمة المرور الحالية</label>
+          <input type="password" id="st-current-password" placeholder="مطلوبة عند التغيير">
+        </div>
+        <div class="fg">
+          <label>كلمة المرور الجديدة</label>
+          <input type="password" id="st-new-password" placeholder="6 أحرف على الأقل">
+        </div>
+        <div class="fg">
+          <label>تأكيد كلمة المرور الجديدة</label>
+          <input type="password" id="st-confirm-password" placeholder="أعد الكتابة">
+        </div>
+        <div class="fg" style="align-self:end">
+          <button class="btn bg" onclick="saveAccountSettings()">🔐 حفظ بيانات الحساب</button>
+        </div>
       </div>
-      <div class="fg">
-        <label>كلمة المرور الحالية (مطلوبة عند تغيير اليوزر/الباسورد)</label>
-        <input type="password" id="st-current-password" placeholder="كلمة المرور الحالية">
+      <div class="dim" id="st-account-msg" style="margin-top:8px">يمكنك تغيير اسم المستخدم أو كلمة المرور.</div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: HOTELS ============ -->
+  <div id="st-hotels" class="st-tab-content" style="display:none;">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="ct" style="margin:0;">🏨 قائمة الفنادق</div>
+        <button class="btn bg" onclick="openAddHotelModal()" id="st-tab-hotels-only">➕ إضافة فندق</button>
       </div>
-      <div class="fg">
-        <label>كلمة المرور الجديدة</label>
-        <input type="password" id="st-new-password" placeholder="6 أحرف على الأقل">
-      </div>
-      <div class="fg">
-        <label>تأكيد كلمة المرور الجديدة</label>
-        <input type="password" id="st-confirm-password" placeholder="أعد كتابة كلمة المرور الجديدة">
-      </div>
-      <div class="fg" style="align-self:end">
-        <button class="btn bg" onclick="saveAccountSettings()">🔐 حفظ بيانات الحساب</button>
+      <div id="st-hotels-list" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="dim" style="text-align:center; padding:20px;">جاري التحميل...</div>
       </div>
     </div>
-    <div class="dim" id="st-account-msg" style="margin-top:8px">يمكنك تغيير اسم المستخدم أو كلمة المرور.</div>
   </div>
 
-  <div class="card">
-    <div class="ct">🔔 إعدادات الإشعارات</div>
-    <div class="fgrid g3" style="margin-top:10px">
-      <div class="fg">
-        <label>تشغيل الإشعارات الرقمية في القائمة</label>
-        <select id="st-enable-badges">
-          <option value="on">مفعلة</option>
-          <option value="off">متوقفة</option>
+  <!-- ============ TAB: ROLES ============ -->
+  <div id="st-roles" class="st-tab-content" style="display:none;">
+    <div class="card">
+      <div class="ct">🔐 الأدوار والصلاحيات (نظام الحوكمة)</div>
+      <p class="dim" style="margin-top:6px; font-size:0.85rem;">مستوى صلاحيات كل دور في النظام — الرؤية، التقارير، والمهام</p>
+      <div class="tw" style="margin-top:14px; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
+        <div id="st-roles-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: SHIFTS ============ -->
+  <div id="st-shifts" class="st-tab-content" style="display:none;">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="ct" style="margin:0;">⏰ الورديات وفترات العمل</div>
+        <button class="btn bg" onclick="openAddShiftModal()">➕ إضافة وردية</button>
+      </div>
+      <div class="tw" style="margin-top:14px; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; overflow: hidden;">
+        <table style="width:100%; border-collapse: collapse; min-width: 600px;">
+          <thead>
+            <tr style="background: rgba(0,0,0,0.2);">
+              <th style="padding: 12px; text-align: right; font-size: 0.75rem; color: var(--dim);">اسم الوردية</th>
+              <th style="padding: 12px; text-align: center; font-size: 0.75rem; color: var(--dim);">وقت البدء</th>
+              <th style="padding: 12px; text-align: center; font-size: 0.75rem; color: var(--dim);">وقت الانتهاء</th>
+              <th style="padding: 12px; text-align: center; font-size: 0.75rem; color: var(--dim);">الأدوار</th>
+              <th style="padding: 12px; text-align: center; font-size: 0.75rem; color: var(--dim);">إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="st-shifts-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: CHECKLIST ============ -->
+  <div id="st-checklist" class="st-tab-content" style="display:none;">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="ct" style="margin:0;">✅ قائمة فحص الغرف (نظام الحوكمة)</div>
+        <button class="btn bg" onclick="openAddChecklistModal()">➕ إضافة بند جديد</button>
+      </div>
+      <p class="dim" style="font-size:0.85rem; margin-bottom:14px;">يتم استخدام هذه البنود في تقرير "فحص الغرفة" عند جاهزيتها للتسكين.</p>
+      
+      <div id="st-checklist-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:14px;">
+        <!-- Categories and items populate here by JS -->
+        <div class="dim" style="grid-column: 1 / -1; text-align:center; padding:30px;">جاري تحميل القائمة...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: ROOM TYPES ============ -->
+  <div id="st-room-types" class="st-tab-content" style="display:none;">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div class="ct" style="margin:0;">🛏️ أنواع الغرف وأسعارها</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="rt-admin-hotel-filter" style="display:none; padding:8px; border-radius:6px; font-size:0.9rem; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);" onchange="loadSettingsRoomTypes()">
+            <option value="">جميع الفنادق</option>
+          </select>
+          <button class="btn" style="background:rgba(255,255,255,0.06);" onclick="exportRoomTypesExcel()">📥 تصدير Excel</button>
+          <button class="btn bg" onclick="addRoomType()">➕ إضافة نوع</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.88rem;" id="rt-table">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08); color:var(--dim); text-align:right;">
+              <th style="padding:10px 12px; font-weight:600;">النوع</th>
+              <th style="padding:10px 12px; font-weight:600;">السعر الليلي</th>
+              <th style="padding:10px 12px; font-weight:600;">الطاقة</th>
+              <th style="padding:10px 12px; font-weight:600;">المساحة</th>
+              <th style="padding:10px 12px; font-weight:600;">الفندق</th>
+              <th style="padding:10px 12px; font-weight:600;">الحالة</th>
+              <th style="padding:10px 12px; font-weight:600;">إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="st-room-types-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: NOTIFICATIONS ============ -->
+  <div id="st-notifications" class="st-tab-content" style="display:none;">
+    <div class="card">
+      <div class="ct">🔔 إعدادات الإشعارات</div>
+      <div class="fgrid g3" style="margin-top:12px">
+        <div class="fg">
+          <label>تشغيل الإشعارات الرقمية في القائمة</label>
+          <select id="st-enable-badges">
+            <option value="on">مفعلة</option>
+            <option value="off">متوقفة</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>تحديث الإشعارات كل (ثانية)</label>
+          <input type="number" id="st-badge-interval" min="15" step="5" value="45">
+        </div>
+        <div class="fg" style="align-self:end">
+          <button class="btn bg" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+        </div>
+      </div>
+      <div class="dim" id="st-save-msg" style="margin-top:8px">سيتم تطبيق الإعدادات فورًا بعد الحفظ.</div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: SYSTEM ============ -->
+  <div id="st-system" class="st-tab-content" style="display:none;">
+    <div class="card">
+      <div class="ct">🖥️ إعدادات النظام</div>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--dark4); border-radius:8px;">
+          <div>
+            <div style="font-weight:bold; font-size:0.9rem;">🔄 إعادة تعيين الإعدادات الافتراضية</div>
+            <div class="dim" style="font-size:0.78rem; margin-top:3px;">يُعيد كل إعدادات الشاشة والإشعارات لحالتها الأصلية</div>
+          </div>
+          <button class="btn br" onclick="resetSettings()">إعادة التعيين</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--dark4); border-radius:8px;">
+          <div>
+            <div style="font-weight:bold; font-size:0.9rem;">📤 تصدير سجلات النظام</div>
+            <div class="dim" style="font-size:0.78rem; margin-top:3px;">تصدير ملف يحتوي معلومات الجلسة الحالية</div>
+          </div>
+          <button class="btn bo" onclick="exportSystemInfo()">تصدير</button>
+        </div>
+        <div style="padding:14px; background:var(--dark4); border-radius:8px; border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:0.82rem; color:var(--dim);">إصدار النظام: <span style="color:var(--gold)">راحتي v2.0</span></div>
+          <div style="font-size:0.82rem; color:var(--dim); margin-top:5px;">تاريخ البناء: <span style="color:var(--text)">2026-04-08</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: ADD/EDIT HOTEL ============ -->
+<div id="modal-hotel" class="modal-ov">
+  <div class="modal-box" style="width: 550px; max-width: 95%;">
+    <div style="padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);">
+      <h3 id="hotel-modal-title" style="margin:0; font-size:1.1rem; display:flex; align-items:center; gap:8px;">🏨 إضافة فندق جديد</h3>
+      <button onclick="closeHotelModal()" style="background:none; border:none; color:var(--dim); cursor:pointer; font-size:1.4rem;">&times;</button>
+    </div>
+    
+    <div style="padding: 22px; max-height: 75vh; overflow-y: auto;">
+      <input type="hidden" id="hotel-id-hidden">
+      
+      <div class="fgrid g2">
+        <div class="fg">
+          <label>اسم الفندق</label>
+          <input type="text" id="hotel-name" placeholder="مثال: راحتي 8">
+        </div>
+        <div class="fg">
+          <label>المدينة</label>
+          <input type="text" id="hotel-city" placeholder="الرياض / جدة...">
+        </div>
+        <div class="fg g2">
+          <label>العنوان التفصيلي</label>
+          <input type="text" id="hotel-address" placeholder="الحي، الشارع...">
+        </div>
+        <div class="fg">
+          <label>رقم الهاتف</label>
+          <input type="text" id="hotel-phone" placeholder="011XXXXXXX">
+        </div>
+        <div class="fg">
+          <label>إجمالي الغرف</label>
+          <input type="number" id="hotel-rooms" value="0">
+        </div>
+        <div class="fg">
+          <label>عدد الطوابق</label>
+          <input type="number" id="hotel-floors" value="0">
+        </div>
+        <div class="fg">
+          <label>تصنيف النجوم</label>
+          <select id="hotel-stars">
+            <option value="1">⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="3" selected>⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+          </select>
+        </div>
+        <div class="fg g2">
+          <label>مشرف الفندق</label>
+          <select id="hotel-manager">
+            <option value="">-- اختر المشرف --</option>
+          </select>
+        </div>
+        <div class="fg g2">
+          <label>وصف الفندق</label>
+          <textarea id="hotel-description" rows="3" placeholder="معلومات إضافية عن الفندق..." style="width:100%; padding:10px; border-radius:8px; background:var(--dark); border:1px solid rgba(255,255,255,0.1); color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div style="padding: 15px 22px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: flex-end; gap: 10px; background: rgba(0,0,0,0.1);">
+      <button class="btn" style="background:transparent; border:1px solid rgba(255,255,255,0.1);" onclick="closeHotelModal()">إلغاء</button>
+      <button class="btn bg" onclick="saveHotel()" style="min-width: 120px;">💾 حفظ الفندق</button>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: ADD CHECKLIST ITEM ============ -->
+  <div class="modal-ov" id="modal-checklist-item">
+    <div class="modal-box" style="width:450px;">
+      <div class="modal-head">
+        <h3 id="checklist-modal-title">✅ إضافة بند فحص</h3>
+        <button class="modal-close" onclick="closeChecklistModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="checklist-id-hidden">
+        <div class="fg">
+          <label>الفئة</label>
+          <select id="checklist-category">
+            <option value="الأرضيات والجدران">الأرضيات والجدران</option>
+            <option value="السرير والمفروشات">السرير والمفروشات</option>
+            <option value="الأثاث">الأثاث</option>
+            <option value="التكييف والكهرباء">التكييف والكهرباء</option>
+            <option value="الحمام">الحمام</option>
+            <option value="المستلزمات">المستلزمات</option>
+            <option value="الأمان">الأمان</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>اسم بند الفحص (مثلاً: الأرضية نظيفة)</label>
+          <input type="text" id="checklist-label" placeholder="اكتب وصف المهمة هنا...">
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn bg" onclick="saveChecklistItem()" style="width:100%">✅ حفظ البند</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: ADD/EDIT SHIFT ============ -->
+  <div class="modal-ov" id="modal-shift">
+    <div class="modal-box" style="width:500px; max-width:95%;">
+      <div class="modal-head">
+        <h3 id="shift-modal-title">⏰ إضافة وردية</h3>
+        <button class="modal-close" onclick="closeShiftModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="shift-id-hidden">
+        <div class="fg">
+          <label>اسم الوردية</label>
+          <div style="display:flex; gap:8px;">
+            <select id="shift-name-select" style="flex:1; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; background:var(--dark3); color:white; font-family:'Tajawal', sans-serif;" onchange="document.getElementById('shift-name-custom').style.display = this.value === 'custom' ? 'block' : 'none';">
+              <option value="صباحية">صباحية (Morning)</option>
+              <option value="مسائية">مسائية (Evening)</option>
+              <option value="ليلية">ليلية (Night)</option>
+              <option value="custom">مخصص (Custom...)</option>
+            </select>
+            <input type="text" id="shift-name-custom" placeholder="اكتب اسم الوردية..." style="display:none; flex:1;">
+          </div>
+        </div>
+        <div class="fgrid">
+          <div class="fg">
+            <label>وقت البدء</label>
+            <input type="time" id="shift-start">
+          </div>
+          <div class="fg">
+            <label>وقت الانتهاء</label>
+            <input type="time" id="shift-end">
+          </div>
+        </div>
+        <div class="fg">
+          <label>الأدوار (اتركها فارغة للكل)</label>
+          <div id="shift-roles-checks" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:5px; background:var(--dark3); padding:10px; border-radius:8px;">
+            <!-- Roles populates by JS -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn bg" onclick="saveShift()" style="width:100%">✅ حفظ بيانات الوردية</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: ADD/EDIT ROOM TYPE ============ -->
+<div class="modal-ov" id="modal-room-type" style="display:none;">
+  <div class="modal-box" style="width:460px; max-width:95%;">
+    <div class="modal-head">
+      <h3 id="room-type-modal-title">🛏️ إضافة نوع غرفة</h3>
+      <button class="modal-close" onclick="closeRoomTypeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="rt-id-hidden">
+      
+      <div class="fg" id="rt-hotel-fg" style="display:none;">
+        <label>الفندق التابع له</label>
+        <select id="rt-hotel-id">
+          <!-- Populated dynamically for admins -->
         </select>
       </div>
+
       <div class="fg">
-        <label>تحديث الإشعارات كل (ثانية)</label>
-        <input type="number" id="st-badge-interval" min="15" step="5" value="45">
+        <label>اسم النوع</label>
+        <input type="text" id="rt-name" placeholder="مثال: غرفة مفردة، جناح، ديلوكس...">
       </div>
-      <div class="fg" style="align-self:end">
-        <button class="btn bg" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+      <div class="fgrid">
+        <div class="fg">
+          <label>السعر الليلي (SAR)</label>
+          <input type="number" id="rt-base-price" min="0" step="0.5" value="0">
+        </div>
+        <div class="fg">
+          <label>الطاقة (أشخاص)</label>
+          <input type="number" id="rt-capacity" min="1" max="20" value="2">
+        </div>
+      </div>
+      <div class="fgrid">
+        <div class="fg">
+          <label>المساحة (م²)</label>
+          <input type="number" id="rt-area" min="0" step="0.5" value="0">
+        </div>
+        <div class="fg">
+          <label>الحالة</label>
+          <select id="rt-is-active">
+            <option value="true">✅ متاح</option>
+            <option value="false">🔴 غير متاح</option>
+          </select>
+        </div>
       </div>
     </div>
-    <div class="dim" id="st-save-msg" style="margin-top:8px">سيتم تطبيق الإعدادات فورًا بعد الحفظ.</div>
+    <div class="modal-foot">
+      <button class="btn bg" onclick="saveRoomType()" style="width:100%">✅ حفظ بيانات النوع</button>
+    </div>
   </div>
-
 </div>
+
+<style>
+.stab {
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--dim);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.83rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: 0.15s;
+  border-radius: 0;
+}
+.stab:hover { color: var(--text); }
+.stab.act { color: var(--gold); border-bottom: 2px solid var(--gold); }
+
+.modal-ov {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+}
+</style>
