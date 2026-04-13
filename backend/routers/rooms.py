@@ -51,6 +51,7 @@ def create_room(
 
     room = Room(
         number=req.number.strip(),
+        floor=req.floor,
         room_type=req.room_type.strip() if req.room_type else "Single",
         status=initial_status,
         hotel_id=req.hotel_id,

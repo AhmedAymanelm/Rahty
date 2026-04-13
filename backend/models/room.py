@@ -17,6 +17,7 @@ class Room(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     number = Column(String(10), nullable=False)
+    floor = Column(Integer, default=1)
     room_type = Column(String(50), default="Single")
     status = Column(Enum(RoomStatus), default=RoomStatus.ready)
     

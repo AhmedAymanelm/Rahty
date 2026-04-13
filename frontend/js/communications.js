@@ -37,10 +37,17 @@ async function checkCommInbox() {
     commUnreadMap = newMap;
 
     if (hasChanges) {
-      // Re-render contacts sidebar with badges
+      // If we are currently on the communications page, and there are changes, 
+      // we should probably reload the threads to re-sort the list.
       const searchVal = document.getElementById('comm-contact-search')?.value.trim();
-      if (searchVal) filterCommunicationContacts();
-      else renderCommunicationContacts(commContactsCache);
+      
+      if (document.getElementById('p-communications')?.style.display !== 'none') {
+          // If on page, silently reload contacts to update sorting and snippets
+          await reloadCommunicationThreadsQuietly();
+      } else {
+          if (searchVal) filterCommunicationContacts();
+          else renderCommunicationContacts(commContactsCache);
+      }
 
       // Update nav badge for Communications icon
       updateCommNavBadge();
@@ -90,14 +97,80 @@ async function loadCommunicationContacts() {
   listEl.innerHTML = '<div class="dim" style="text-align:center; padding:30px;">جاري تحميل جهات التواصل...</div>';
 
   try {
-    const data = await apiRequest('/auth/users?include_inactive=false');
-    commContactsCache = (data || []).sort((a, b) => a.full_name.localeCompare(b.full_name));
+    const [users, threads] = await Promise.all([
+      apiRequest('/auth/users?include_inactive=false').catch(e => { throw new Error('فشل جلب الموظفين: ' + e.message); }),
+      apiRequest('/auth/messages/threads').catch(e => { throw new Error('فشل جلب المحادثات: ' + e.message); })
+    ]);
+    
+    if (!users || !Array.isArray(users)) {
+        throw new Error("بيانات الموظفين غير صالحة");
+    }
+
+    mergeAndSortContacts(users, threads);
     renderCommunicationContacts(commContactsCache);
+    
     // Start background inbox polling when page opens
     startCommInboxPolling();
   } catch (err) {
-    listEl.innerHTML = `<div class="dim" style="text-align:center; color:var(--red); padding:30px;">⚠️ خطأ: ${err.message}</div>`;
+    console.error(err);
+    if (listEl) {
+        listEl.innerHTML = `<div class="dim" style="text-align:center; color:var(--red); padding:30px;">⚠️ خطأ: ${err.message}</div>`;
+    }
   }
+}
+
+async function reloadCommunicationThreadsQuietly() {
+    try {
+        const [users, threads] = await Promise.all([
+            apiRequest('/auth/users?include_inactive=false'),
+            apiRequest('/auth/messages/threads')
+        ]);
+        mergeAndSortContacts(users || [], threads || []);
+        
+        const searchVal = document.getElementById('comm-contact-search')?.value.trim();
+        if (searchVal) filterCommunicationContacts();
+        else renderCommunicationContacts(commContactsCache);
+    } catch (_) {}
+}
+
+function mergeAndSortContacts(users, threads) {
+    try {
+        const threadMap = {};
+        if (threads && Array.isArray(threads)) {
+            threads.forEach(t => { if (t) threadMap[t.user_id] = t; });
+        }
+
+        const merged = (users || []).map(u => {
+            if (!u) return u;
+            const t = threadMap[u.id];
+            if (t) {
+                u._lastMessageTime = (t.last_message_time) ? new Date(t.last_message_time).getTime() : 0;
+                u._lastMessageText = t.last_message || '';
+                u._unreadCount = t.unread_count || 0;
+            } else {
+                u._lastMessageTime = 0;
+                u._lastMessageText = null;
+                u._unreadCount = 0;
+            }
+            return u;
+        }).filter(u => u != null);
+
+        merged.sort((a, b) => {
+            const timeA = a._lastMessageTime || 0;
+            const timeB = b._lastMessageTime || 0;
+            if (timeB !== timeA) {
+                return timeB - timeA;
+            }
+            const nameA = a.full_name || '';
+            const nameB = b.full_name || '';
+            return nameA.localeCompare(nameB);
+        });
+
+        commContactsCache = merged;
+    } catch(e) {
+        console.error("Merge error:", e);
+        commContactsCache = users || [];
+    }
 }
 
 function renderCommunicationContacts(contacts) {
@@ -129,6 +202,16 @@ function renderCommunicationContacts(contacts) {
       : '';
 
     // Sort contacts with unread first
+    
+    let timeLabel = '';
+    if (c._lastMessageTime > 0) {
+        timeLabel = new Date(c._lastMessageTime).toLocaleString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    const snippetHtml = c._lastMessageText 
+        ? `<div class="dim" style="font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 170px;">${c._lastMessageText}</div>`
+        : `<div class="dim" style="font-size:0.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${subtitle}</div>`;
+
     html += `
       <div
         class="comm-contact-item"
@@ -142,8 +225,11 @@ function renderCommunicationContacts(contacts) {
           ${rd.icon}
         </div>
         <div style="flex:1; min-width:0;">
-          <div style="font-weight:${unreadCount > 0 ? 'bold' : 'normal'}; font-size:0.9rem; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.full_name}</div>
-          <div class="dim" style="font-size:0.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${subtitle}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+             <div style="font-weight:${unreadCount > 0 ? 'bold' : 'normal'}; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.full_name}</div>
+             <div class="dim" style="font-size:0.65rem;">${timeLabel}</div>
+          </div>
+          ${snippetHtml}
         </div>
         ${unreadBadge}
       </div>
@@ -248,7 +334,15 @@ async function refreshCommunicationMessages() {
         ? 'background:var(--gold); color:#000;'
         : 'background:var(--dark4); border:1px solid rgba(255,255,255,0.07); color:var(--text);';
       const radius = isMe ? '12px 12px 0px 12px' : '12px 12px 12px 0px';
-      const fd = new Date(msg.created_at).toLocaleString('ar-SA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      // Standardize date parsing to maintain correctness
+      const msgDate = new Date(msg.created_at);
+      const isToday = msgDate.toDateString() === new Date().toDateString();
+      const timeOpts = { hour: 'numeric', minute: '2-digit', hour12: true };
+      const dateOpts = { month: 'short', day: 'numeric' };
+      const fd = isToday 
+        ? msgDate.toLocaleString('ar-SA', timeOpts)
+        : msgDate.toLocaleString('ar-SA', { ...dateOpts, ...timeOpts });
+
       const senderLabel = !isMe ? `<div style="font-size:0.72rem;opacity:0.6;margin-bottom:4px;">${msg.sender_name}</div>` : '';
 
       html += `
@@ -292,6 +386,24 @@ async function sendCommunicationMessage() {
       method: 'POST',
       body: JSON.stringify({ message: txt })
     });
+    
+    // Refresh sidebar immediately locally
+    const targetUser = commContactsCache.find(u => u.id === activeCommContactId);
+    if (targetUser) {
+        targetUser._lastMessageTime = Date.now();
+        targetUser._lastMessageText = txt;
+        commContactsCache.sort((a, b) => {
+            if (b._lastMessageTime !== a._lastMessageTime) {
+                return b._lastMessageTime - a._lastMessageTime;
+            }
+            return a.full_name.localeCompare(b.full_name);
+        });
+        
+        const searchVal = document.getElementById('comm-contact-search')?.value.trim();
+        if (searchVal) filterCommunicationContacts();
+        else renderCommunicationContacts(commContactsCache);
+    }
+
     await refreshCommunicationMessages();
     setTimeout(() => {
       const msgPane = document.getElementById('comm-chat-messages');

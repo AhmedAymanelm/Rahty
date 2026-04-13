@@ -195,7 +195,7 @@ async function refreshNavBadges() {
         apiRequest('/broadcasts/inbox'),
         apiRequest(`/auth/users?include_inactive=true${scopedHotelId ? `&hotel_id=${encodeURIComponent(scopedHotelId)}` : ''}`),
         apiRequest(`/finance/shift-reports?status_filter=pending${scopedHotelId ? `&hotel_id=${encodeURIComponent(scopedHotelId)}` : ''}`),
-        apiRequest(`/finance/warehouse-requests?status_filter=pending${scopedHotelId ? `&hotel_id=${encodeURIComponent(scopedHotelId)}` : ''}`),
+        apiRequest(`/finance/warehouse-requests?status_filter=supervisor_approved${scopedHotelId ? `&hotel_id=${encodeURIComponent(scopedHotelId)}` : ''}`),
         apiRequest(`/finance/purchase-orders?status_filter=pending${scopedHotelId ? `&hotel_id=${encodeURIComponent(scopedHotelId)}` : ''}`),
       ]);
 
@@ -221,7 +221,7 @@ async function refreshNavBadges() {
         apiRequest('/tasks'),
         apiRequest('/auth/users?include_inactive=true'),
         apiRequest('/maintenance/reports'),
-        apiRequest('/finance/warehouse-requests?status_filter=pending'),
+        apiRequest('/finance/warehouse-requests?status_filter=' + (role === 'warehouse_manager' ? 'supervisor_approved' : 'pending')),
         apiRequest('/finance/purchase-orders?status_filter=pending'),
       ]);
       setNavBadge('p-sup-tasks', (tasks || []).filter((t) => !['completed', 'closed'].includes(t.status)).length);
@@ -244,7 +244,7 @@ async function refreshNavBadges() {
     if (role === 'accountant') {
       const [pending, warehouse, po] = await Promise.all([
         apiRequest('/finance/shift-reports?status_filter=pending'),
-        apiRequest('/finance/warehouse-requests?status_filter=pending'),
+        apiRequest('/finance/warehouse-requests?status_filter=supervisor_approved'),
         apiRequest('/finance/purchase-orders?status_filter=pending'),
       ]);
       setNavBadge('p-ac-dash', (pending || []).length, 'تقارير بانتظار المراجعة');

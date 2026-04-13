@@ -15,6 +15,7 @@ from models.user import User, UserRole
 from models.room import Room, RoomStatus
 from models.task import Task, TaskPriority, TaskStatus
 from models.maintenance import MaintenanceReport, MaintenanceStatus
+from models.finance import WarehouseRequest, WarehouseRequestStatus
 from schemas.maintenance import (
     MaintenanceReportCreate,
     MaintenanceReportOut,
@@ -60,8 +61,9 @@ def _can_work_on_report(current_user: User, report: MaintenanceReport) -> None:
     if role in ["supervisor", "superfv"]:
         return
 
-    if role == "maintenance" and report.assigned_to_id == current_user.id:
-        return
+    if role == "maintenance":
+        if report.assigned_to_id == current_user.id or report.assigned_to_id is None:
+            return
 
     raise HTTPException(status_code=403, detail="ليس لديك صلاحية التعامل مع هذا البلاغ")
 
@@ -189,20 +191,6 @@ def create_report(
     assigned_to_id = req.assigned_to_id
     if assigned_to_id:
         _ensure_maintenance_user(db, assigned_to_id, room.hotel_id)
-    else:
-        # Auto-assign to an active technician in the same hotel if available.
-        auto_tech = (
-            db.query(User)
-            .filter(
-                User.role == UserRole.maintenance,
-                User.hotel_id == room.hotel_id,
-                User.is_active == True,
-            )
-            .order_by(User.id.asc())
-            .first()
-        )
-        if auto_tech:
-            assigned_to_id = auto_tech.id
 
     initial_status = MaintenanceStatus.assigned if assigned_to_id else MaintenanceStatus.reported
 
@@ -257,7 +245,11 @@ def list_reports(
         query = query.filter(MaintenanceReport.hotel_id == hotel_id)
 
     if role == "maintenance":
-        query = query.filter(MaintenanceReport.assigned_to_id == current_user.id)
+        from sqlalchemy import or_
+        query = query.filter(or_(
+            MaintenanceReport.assigned_to_id == current_user.id,
+            MaintenanceReport.assigned_to_id == None
+        ))
 
     if status_filter:
         try:
@@ -337,6 +329,18 @@ def diagnose_report(
     if req.parts_required:
         report.status = MaintenanceStatus.waiting_parts
         report.waiting_parts_at = _now_utc()
+        
+        if req.item_id and req.quantity_requested:
+            wh_req = WarehouseRequest(
+                hotel_id=report.hotel_id,
+                item_id=req.item_id,
+                requester_id=current_user.id,
+                quantity_requested=req.quantity_requested,
+                note=req.parts_notes or f"تخص بلاغ صيانة رقم {report.id}",
+                status=WarehouseRequestStatus.pending,
+            )
+            db.add(wh_req)
+
     else:
         report.status = MaintenanceStatus.in_progress
         if not report.started_at:
@@ -366,6 +370,9 @@ def start_report_work(
 
     if report.status in [MaintenanceStatus.completed, MaintenanceStatus.verified]:
         raise HTTPException(status_code=400, detail="لا يمكن بدء بلاغ مكتمل")
+
+    if report.assigned_to_id is None and current_user.role.value == "maintenance":
+        report.assigned_to_id = current_user.id
 
     report.status = MaintenanceStatus.in_progress
     if not report.started_at:

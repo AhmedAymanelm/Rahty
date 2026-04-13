@@ -6,12 +6,15 @@
  * Load rooms from server and render the grid
  */
 async function loadRooms() {
-  const container = document.querySelector('#p-cl-rooms .rg');
+  const container = document.querySelector('#floors-wrapper');
   if (!container) return;
 
-  container.innerHTML = '<div class="dim">جاري تحميل الغرف...</div>';
+  container.innerHTML = '<div class="dim" style="text-align:center; padding: 20px;">جاري تحميل بيانات الغرف...</div>';
 
   try {
+    const user = getStoredUser();
+    const role = user?.role;
+
     const rooms = await apiRequest('/rooms');
     if (!rooms) return;
 
@@ -29,56 +32,97 @@ async function loadRooms() {
       stats[2].textContent = rooms.filter(r => r.status === 'dirty').length;
     }
 
+    // Group rooms by floor
+    const roomsByFloor = {};
     rooms.forEach(r => {
-      const rc = document.createElement('div');
+      const f = r.floor || 1;
+      if (!roomsByFloor[f]) roomsByFloor[f] = [];
+      roomsByFloor[f].push(r);
+    });
 
-      // Map status to CSS classes and labels
-      let statusClass = '';
-      let statusLabel = '';
-      let statusColor = 'var(--dim)';
+    const sortedFloors = Object.keys(roomsByFloor).map(Number).sort((a, b) => a - b);
 
-      if (r.status === 'ready') {
-        statusClass = 'cl';
-        statusLabel = '✅ نظيفة';
-        statusColor = 'var(--green)';
-      } else if (r.status === 'dirty') {
-        statusClass = '';
-        statusLabel = '⬜ لم تبدأ';
-      } else if (r.status === 'cleaning') {
-        statusClass = 'dt';
-        statusLabel = '🧹 جارية';
-        statusColor = 'var(--orange)';
-      } else if (r.status === 'maintenance') {
-        statusClass = 'mn';
-        statusLabel = '🔧 صيانة';
-        statusColor = 'var(--red)';
-      } else if (r.status === 'occupied') {
-        statusClass = 'mn'; // reuse maintenance styling for occupied
-        statusLabel = '👤 مشغولة';
-        statusColor = 'var(--blue)';
-      }
+    if (sortedFloors.length === 0) {
+      container.innerHTML = '<div class="dim" style="text-align:center; padding: 20px;">لا توجد غرف حتى الآن.</div>';
+    }
 
-      const canOpenChecklist = (r.status === 'dirty' || r.status === 'cleaning');
+    sortedFloors.forEach(floorNumber => {
+      const floorRooms = roomsByFloor[floorNumber];
 
-      rc.className = `rc ${statusClass}`;
-      rc.style.cursor = canOpenChecklist ? 'pointer' : 'not-allowed';
-      rc.title = canOpenChecklist ? 'افتح تقرير التنظيف' : 'هذه الغرفة غير متاحة للتنظيف الآن';
+      const floorCard = document.createElement('div');
+      floorCard.className = 'card';
+      floorCard.innerHTML = `<div class="ct">🏠 غرف الطابق ${floorNumber}</div>`;
 
-      if (canOpenChecklist) {
-        rc.onclick = () => {
-          // When clicking a dirty room, mark it as "cleaning" then open checklist
-          if (r.status === 'dirty') {
-            updateRoomStatus(r.id, 'cleaning');
-          }
-          goCleanRoom(r.number, r.id);
-        };
-      }
+      const rg = document.createElement('div');
+      rg.className = 'rg';
 
-      rc.innerHTML = `
-        <div class="rn">${r.number}</div>
-        <div class="rs" style="color:${statusColor}">${statusLabel}</div>
-      `;
-      container.appendChild(rc);
+      floorRooms.forEach(r => {
+        const rc = document.createElement('div');
+
+        // Map status to CSS classes and labels
+        let statusClass = '';
+        let statusLabel = '';
+        let statusColor = 'var(--dim)';
+
+        if (r.status === 'ready') {
+          statusClass = 'cl';
+          statusLabel = '✅ نظيفة';
+          statusColor = 'var(--green)';
+        } else if (r.status === 'dirty') {
+          statusClass = '';
+          statusLabel = '⬜ لم تبدأ';
+        } else if (r.status === 'cleaning') {
+          statusClass = 'dt';
+          statusLabel = '🧹 جارية';
+          statusColor = 'var(--orange)';
+        } else if (r.status === 'maintenance') {
+          statusClass = 'mn';
+          statusLabel = '🔧 صيانة';
+          statusColor = 'var(--red)';
+        } else if (r.status === 'occupied') {
+          statusClass = 'mn'; // reuse maintenance styling for occupied
+          statusLabel = '👤 مشغولة';
+          statusColor = 'var(--blue)';
+        }
+
+        const canOpenChecklist = (r.status === 'dirty' || r.status === 'cleaning') && role !== 'reception';
+        const canRequestCleaning = (r.status !== 'dirty' && r.status !== 'cleaning' && r.status !== 'maintenance') && role === 'reception';
+
+        rc.className = `rc ${statusClass}`;
+        
+        if (canOpenChecklist) {
+          rc.style.cursor = 'pointer';
+          rc.title = 'افتح تقرير التنظيف';
+          rc.onclick = () => {
+             if (r.status === 'dirty') {
+               updateRoomStatus(r.id, 'cleaning');
+             }
+             goCleanRoom(r.number, r.id);
+          };
+        } else if (canRequestCleaning) {
+          rc.style.cursor = 'pointer';
+          rc.title = 'طلب نظافة للغرفة';
+          rc.onclick = async () => {
+            if (confirm(`هل تريد إرسال طلب نظافة للغرفة رقم ${r.number}؟`)) {
+              await updateRoomStatus(r.id, 'dirty');
+              if (typeof showToast === 'function') showToast('تم إرسال طلب النظافة بنجاح!', 'success');
+              loadRooms();
+            }
+          };
+        } else {
+          rc.style.cursor = 'not-allowed';
+          rc.title = role === 'reception' ? 'الغرفة مطلوبة للتنظيف مسبقاً' : 'هذه الغرفة غير متاحة للتنظيف الآن';
+        }
+
+        rc.innerHTML = `
+          <div class="rn">${r.number}</div>
+          <div class="rs" style="color:${statusColor}">${statusLabel}</div>
+        `;
+        rg.appendChild(rc);
+      });
+
+      floorCard.appendChild(rg);
+      container.appendChild(floorCard);
     });
   } catch (err) {
     container.innerHTML = `<div class="login-error show">⚠️ خطأ: ${err.message}</div>`;
@@ -224,6 +268,7 @@ async function bindAdminRoomCreateForm(user) {
     try {
       const payload = {
         number: (document.getElementById('ad-room-number')?.value || '').trim(),
+        floor: parseInt(document.getElementById('ad-room-floor')?.value || '1', 10),
         room_type: document.getElementById('ad-room-type')?.value || '',
         status: document.getElementById('ad-room-status')?.value || 'ready',
         hotel_id: hotelId,
@@ -289,6 +334,7 @@ async function bindSupervisorRoomCreateForm(user) {
     try {
       const payload = {
         number: (document.getElementById('sup-room-number')?.value || '').trim(),
+        floor: parseInt(document.getElementById('sup-room-floor')?.value || '1', 10),
         room_type: document.getElementById('sup-room-type')?.value || '',
         status: document.getElementById('sup-room-status')?.value || 'ready',
         hotel_id: user.hotel_id,

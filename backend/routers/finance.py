@@ -360,7 +360,7 @@ async def upload_shift_report_photo(
 def create_competitor_price(
     req: CompetitorPriceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "supervisor", "superfv", "reception")),
+    current_user: User = Depends(require_role("admin", "supervisor", "superfv")),
 ):
     role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
 
@@ -552,7 +552,7 @@ def list_competitor_prices(
     if role == "admin":
         if hotel_id:
             q = q.filter(CompetitorPrice.hotel_id == hotel_id)
-    elif role in ["supervisor", "superfv", "reception", "accountant"]:
+    elif role in ["supervisor", "superfv", "accountant"]:
         q = q.filter(CompetitorPrice.hotel_id == current_user.hotel_id)
     else:
         raise HTTPException(status_code=403, detail="ليس لديك صلاحية عرض أسعار المنافسين")
@@ -996,7 +996,7 @@ def income_export_xlsx(
 def create_purchase_order(
     req: PurchaseOrderCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "supervisor", "superfv")),
+    current_user: User = Depends(require_role("admin")),
 ):
     role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
     target_hotel_id = current_user.hotel_id
@@ -1046,7 +1046,7 @@ def list_purchase_orders(
     min_amount: Optional[Decimal] = None,
     max_amount: Optional[Decimal] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "accountant", "supervisor", "superfv")),
+    current_user: User = Depends(require_role("admin", "accountant")),
 ):
     role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
     q = db.query(PurchaseOrder)
@@ -1867,13 +1867,17 @@ def create_warehouse_request(
     if not item:
         raise HTTPException(status_code=404, detail="الصنف غير موجود")
 
+    status = WarehouseRequestStatus.pending
+    if role == "supervisor":
+        status = WarehouseRequestStatus.supervisor_approved
+
     row = WarehouseRequest(
         hotel_id=target_hotel_id,
         item_id=req.item_id,
         requester_id=current_user.id,
         quantity_requested=req.quantity_requested,
         note=req.note,
-        status=WarehouseRequestStatus.pending,
+        status=status,
     )
     db.add(row)
     db.flush()
@@ -1938,6 +1942,13 @@ def list_warehouse_requests(
             q = q.filter(WarehouseRequest.status == WarehouseRequestStatus(status_filter))
         except ValueError:
             raise HTTPException(status_code=400, detail="حالة الطلب غير صحيحة")
+    else:
+        # Default filters per role if no status is provided
+        if role == "warehouse_manager":
+            q = q.filter(WarehouseRequest.status == WarehouseRequestStatus.supervisor_approved)
+        elif role == "supervisor":
+             # Supervisors see pending requests from their team (superfv)
+             q = q.filter(WarehouseRequest.status == WarehouseRequestStatus.pending)
 
     if from_date:
         q = q.filter(func.date(WarehouseRequest.created_at) >= from_date)
@@ -1966,7 +1977,7 @@ def review_warehouse_request(
     request_id: int,
     req: WarehouseRequestReviewRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "superfv", "warehouse_manager")),
+    current_user: User = Depends(require_role("admin", "supervisor", "superfv", "warehouse_manager")),
 ):
     row = db.query(WarehouseRequest).filter(WarehouseRequest.id == request_id).first()
     if not row:
@@ -1974,13 +1985,25 @@ def review_warehouse_request(
 
     check_hotel_access(current_user, row.hotel_id)
 
-    if row.status != WarehouseRequestStatus.pending:
-        raise HTTPException(status_code=400, detail="الطلب تمت مراجعته مسبقاً")
-
     try:
         new_status = WarehouseRequestStatus(req.status)
     except ValueError:
         raise HTTPException(status_code=400, detail="حالة الطلب غير صحيحة")
+
+    role = current_user.role.value if hasattr(current_user.role, "value") else current_user.role
+
+    # Role-based review logic
+    if role == "supervisor":
+        if row.status != WarehouseRequestStatus.pending:
+            raise HTTPException(status_code=400, detail="الطلب ليس بانتظار موافقة المدير")
+        if new_status not in [WarehouseRequestStatus.supervisor_approved, WarehouseRequestStatus.rejected]:
+            raise HTTPException(status_code=400, detail="لا يمكن للمدير إلا الموافقة المبدئية أو الرفض")
+    
+    elif role == "warehouse_manager":
+        if row.status != WarehouseRequestStatus.supervisor_approved:
+            raise HTTPException(status_code=400, detail="الطلب يحتاج لموافقة مدير الفرع أولاً")
+        if new_status not in [WarehouseRequestStatus.approved, WarehouseRequestStatus.rejected]:
+            raise HTTPException(status_code=400, detail="لا يمكن للمستودع إلا الصرف أو الرفض")
 
     approved_qty = req.quantity_approved or row.quantity_requested
 
@@ -1995,7 +2018,7 @@ def review_warehouse_request(
         item.quantity = int(item.quantity or 0) - int(approved_qty)
         item.updated_by_id = current_user.id
         row.quantity_approved = int(approved_qty)
-    else:
+    elif new_status == WarehouseRequestStatus.rejected:
         if not (req.review_note or "").strip():
             raise HTTPException(status_code=400, detail="سبب الرفض مطلوب")
 

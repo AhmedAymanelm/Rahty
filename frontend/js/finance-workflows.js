@@ -536,7 +536,10 @@ async function loadWarehouseManagerPage() {
       }
     }
 
-    const status = document.getElementById('wm-status')?.value || 'pending';
+    let status = document.getElementById('wm-status')?.value || 'pending';
+    if (status === 'pending' && user?.role === 'warehouse_manager') {
+      status = 'supervisor_approved'; // Default for warehouse manager
+    }
     const fromDate = document.getElementById('wm-from')?.value || '';
     const toDate = document.getElementById('wm-to')?.value || '';
     const hotel = document.getElementById('wm-hotel')?.value || 'all';
@@ -559,7 +562,8 @@ async function loadWarehouseManagerPage() {
     
     apiRequest(endpoint)
       .then(rows => {
-        const canReview = user && (user.role === 'superfv' || user.role === 'admin' || user.role === 'warehouse_manager');
+        const canReviewWarehouseManager = user && (user.role === 'admin' || user.role === 'warehouse_manager');
+        const canReviewSupervisor = user && (user.role === 'admin' || user.role === 'supervisor');
         body.innerHTML = '';
         if (!rows || !rows.length) {
           const hint = status === 'pending' ? 'لا توجد طلبات معلقة حالياً.' : 'لا توجد طلبات مطابقة.';
@@ -568,10 +572,14 @@ async function loadWarehouseManagerPage() {
         }
 
         rows.forEach((r) => {
-          const actions = (canReview && r.status === 'pending')
-            ? `<button class="btn bgr bsm" onclick="reviewWarehouseRequest(${r.id}, 'approved')">اعتماد</button>
-               <button class="btn br bsm" onclick="reviewWarehouseRequest(${r.id}, 'rejected')">رفض</button>`
-            : '<span class="dim" style="font-size:.8rem">عرض</span>';
+          let actions = '<span class="dim" style="font-size:.8rem">عرض</span>';
+          if (r.status === 'pending' && canReviewSupervisor) {
+             actions = `<button class="btn bgr bsm" onclick="reviewWarehouseRequest(${r.id}, 'supervisor_approved')">موافقة مبدئية</button>
+                        <button class="btn br bsm" onclick="reviewWarehouseRequest(${r.id}, 'rejected')">رفض</button>`;
+          } else if (r.status === 'supervisor_approved' && canReviewWarehouseManager) {
+             actions = `<button class="btn bgr bsm" onclick="reviewWarehouseRequest(${r.id}, 'approved')">تأكيد الصرف</button>
+                        <button class="btn br bsm" onclick="reviewWarehouseRequest(${r.id}, 'rejected')">رفض</button>`;
+          }
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -684,23 +692,37 @@ async function reviewWarehouseRequest(requestId, status) {
   let quantity_approved = null;
   let review_note = null;
 
-  if (status === 'approved') {
-    const qty = await fwOpenInputDialog({
-      title: '✨ اعتماد طلب الصرف',
-      subtitle: 'اكتب الكمية التي تريد اعتمادها الآن.\nللاعتماد بنفس الكمية المطلوبة اترك الحقل فارغًا.',
-      placeholder: 'مثال: 120',
-      confirmLabel: 'اعتماد',
-      confirmClass: 'bgr',
-      required: false,
-    });
-    if (qty === null) return;
+  if (status === 'approved' || status === 'supervisor_approved') {
+    if (status === 'approved') {
+      const qty = await fwOpenInputDialog({
+        title: '✨ اعتماد طلب الصرف نهائياً',
+        subtitle: 'اكتب الكمية التي تريد صرفها من المستودع الآن.\\nللاعتماد بنفس الكمية المطلوبة اترك الحقل فارغًا.',
+        placeholder: 'مثال: 120',
+        confirmLabel: 'تأكيد الصرف',
+        confirmClass: 'bgr',
+        required: false,
+      });
+      if (qty === null) return;
 
-    if (String(qty || '').trim()) {
-      quantity_approved = Number(qty);
-      if (!Number.isFinite(quantity_approved) || quantity_approved <= 0) {
-        if (typeof showToast === 'function') showToast('الكمية المعتمدة غير صحيحة', 'warning');
-        return;
+      if (String(qty || '').trim()) {
+        quantity_approved = Number(qty);
+        if (!Number.isFinite(quantity_approved) || quantity_approved <= 0) {
+          if (typeof showToast === 'function') showToast('الكمية المعتمدة غير صحيحة', 'warning');
+          return;
+        }
       }
+    } else {
+      // Supervisor passing approval
+      const note = await fwOpenInputDialog({
+        title: '✅ موافقة مبدئية',
+        subtitle: 'يرجى تأكيد الموافقة ليتم إرسال الطلب إلى مسؤول المستودع للصرف.',
+        placeholder: 'ملاحظة (اختياري)...',
+        confirmLabel: 'موافق',
+        confirmClass: 'bgr',
+        required: false,
+      });
+      if (note === null) return;
+      if (String(note || '').trim()) review_note = note;
     }
   } else {
     review_note = await fwOpenInputDialog({

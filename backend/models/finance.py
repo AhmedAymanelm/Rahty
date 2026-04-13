@@ -32,6 +32,7 @@ class PurchaseOrderStatus(str, enum.Enum):
 
 class WarehouseRequestStatus(str, enum.Enum):
     pending = "pending"
+    supervisor_approved = "supervisor_approved"
     approved = "approved"
     rejected = "rejected"
 

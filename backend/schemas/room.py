@@ -4,6 +4,7 @@ from datetime import datetime
 
 class RoomBase(BaseModel):
     number: str
+    floor: int = 1
     room_type: str = "Single"
     status: str = "ready"
     hotel_id: int

@@ -9,8 +9,13 @@
   </div>
   <div class="card"><div class="ct">📦 طلب قطعة غيار (إن لزم)</div>
     <div class="fgrid">
-      <div class="fg"><label>اسم/وصف القطعة</label><input type="text" id="mn-parts-name" placeholder="مثال: وحدة ضاغط"></div>
-      <div class="fg"><label>رقم الغرفة</label><input type="text" id="mn-room-number" value="-" readonly></div>
+      <div class="fg"><label>الصنف المطلوب من المستودع</label>
+        <select id="mn-parts-item">
+          <option value="">اختياري - بدون شراء صنف</option>
+        </select>
+      </div>
+      <div class="fg"><label>الكمية المطلوبة</label><input type="number" id="mn-parts-qty" placeholder="مثال: 1" min="1"></div>
+      <div class="fg"><label>اسم/وصف آخر</label><input type="text" id="mn-parts-name" placeholder="مثال: وحدة ضاغط (غير موجود بالمستودع)"></div>
     </div>
     <div class="fg"><label>تشخيص أولي</label><textarea id="mn-diagnosis" placeholder="مثال: تسريب فريون + تلف في المضخة"></textarea></div>
     <div class="flex-g">

@@ -8,3 +8,25 @@
     </tbody>
   </table></div>
 </div>
+
+<!-- ASSIGN MAINTENANCE MODAL (supervisor) -->
+<div class="modal-ov" id="assignMaintModal">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-head">
+      <h3>📤 رفع البلاغ لقسم الصيانة</h3>
+      <button class="modal-close" onclick="closeModal('assignMaintModal')">✕</button>
+    </div>
+    <input type="hidden" id="assign-maint-report-id">
+    <div class="fg" style="margin-top:16px">
+      <label>اختر الفني المسؤول</label>
+      <select id="assign-maint-tech-select">
+        <option value="">جاري تحميل الفنيين...</option>
+      </select>
+    </div>
+    <div style="margin-top:16px; display:flex; gap:10px">
+      <button class="btn bg" id="assign-maint-confirm-btn" onclick="confirmAssignMaintenance()">✅ تأكيد الإسناد</button>
+      <button class="btn" onclick="closeModal('assignMaintModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+

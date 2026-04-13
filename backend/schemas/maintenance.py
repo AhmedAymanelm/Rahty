@@ -19,6 +19,8 @@ class MaintenanceDiagnoseRequest(BaseModel):
     diagnosis: str = Field(min_length=3)
     parts_required: bool = False
     parts_notes: Optional[str] = None
+    item_id: Optional[int] = None
+    quantity_requested: Optional[int] = Field(default=None, gt=0)
 
 
 class MaintenanceStartRequest(BaseModel):

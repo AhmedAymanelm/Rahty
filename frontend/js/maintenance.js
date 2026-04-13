@@ -143,6 +143,28 @@ function openMaintenanceJob(reportId) {
   if (diagnosis) diagnosis.value = report.diagnosis || '';
   if (repairNotes) repairNotes.value = report.verification_notes || '';
   if (parts) parts.value = report.parts_notes || '';
+  
+  const itemSelect = document.getElementById('mn-parts-item');
+  const qtyInput = document.getElementById('mn-parts-qty');
+  if (qtyInput) qtyInput.value = '';
+  if (itemSelect) {
+    itemSelect.innerHTML = '<option value="">جاري تحميل الأصناف...</option>';
+    apiRequest('/finance/warehouse-items')
+      .then(items => {
+        itemSelect.innerHTML = '<option value="">اختياري - بدون شراء صنف (وصف حر)</option>';
+        if (items && items.length) {
+          items.forEach(i => {
+            const opt = document.createElement('option');
+            opt.value = i.id;
+            opt.textContent = `${i.item_name} (المتوفر: ${i.quantity} ${i.unit})`;
+            itemSelect.appendChild(opt);
+          });
+        }
+      })
+      .catch(() => {
+        itemSelect.innerHTML = '<option value="">الخدمة غير متاحة الآن</option>';
+      });
+  }
   if (afterPreview) afterPreview.innerHTML = '';
   if (afterInput) {
     afterInput.value = '';
@@ -282,11 +304,71 @@ function renderAdminMaintenanceReports(reports) {
       <td>
         <button class="btn bb bsm" onclick="showMaintenanceDetails(${r.id})">👁️ عرض</button>
         ${canVerify ? `<button class="btn bgr bsm" onclick="verifyMaintenanceReport(${r.id})">✅ اعتماد</button>` : ''}
+        ${['supervisor', 'superfv', 'admin'].includes(currentRole) && r.status === 'reported' ? `<button class="btn bsm" style="background:var(--blue);color:#fff" onclick="openAssignMaintenanceModal(${r.id})">📤 رفع للصيانة</button>` : ''}
         ${canDelete ? `<button class="btn br bsm" onclick="deleteMaintenanceReport(${r.id})">🗑️ حذف</button>` : ''}
       </td>
     `;
     body.appendChild(tr);
   });
+}
+
+async function openAssignMaintenanceModal(reportId) {
+  document.getElementById('assign-maint-report-id').value = reportId;
+
+  const select = document.getElementById('assign-maint-tech-select');
+  select.innerHTML = '<option value="">جاري تحميل الفنيين...</option>';
+
+  openModal('assignMaintModal');
+
+  try {
+    const users = await apiRequest('/auth/users?include_inactive=false');
+    const techs = (users || []).filter(u => u.role === 'maintenance');
+    if (techs.length === 0) {
+      select.innerHTML = '<option value="">لا يوجد فنيو صيانة مسجلون</option>';
+      return;
+    }
+    select.innerHTML = '<option value="">-- اختر الفني --</option>';
+    techs.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      const hotelLabel = t.hotel ? ` (${t.hotel.name})` : '';
+      opt.textContent = `${t.full_name}${hotelLabel}`;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    select.innerHTML = `<option value="">تعذر تحميل الفنيين: ${err.message}</option>`;
+  }
+}
+
+async function confirmAssignMaintenance() {
+  const reportId = document.getElementById('assign-maint-report-id').value;
+  const techId = document.getElementById('assign-maint-tech-select').value;
+  const btn = document.getElementById('assign-maint-confirm-btn');
+
+  if (!reportId || !techId) {
+    showToast('الرجاء اختيار الفني أولاً', 'warning');
+    return;
+  }
+
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الإسناد...';
+
+  try {
+    await apiRequest(`/maintenance/reports/${reportId}/assign`, {
+      method: 'PATCH',
+      body: JSON.stringify({ assigned_to_id: Number(techId) })
+    });
+    closeModal('assignMaintModal');
+    showToast('تم رفع البلاغ لقسم الصيانة بنجاح ✅', 'success');
+    await loadMaintenanceReports();
+    await loadDashboardOverview();
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
 }
 
 async function deleteMaintenanceReport(reportId) {
@@ -466,12 +548,21 @@ async function requestMaintenanceParts() {
 
   const diagnosis = document.getElementById('mn-diagnosis');
   const partsName = document.getElementById('mn-parts-name');
+  const partsItem = document.getElementById('mn-parts-item');
+  const partsQty = document.getElementById('mn-parts-qty');
 
   const diagnosisValue = diagnosis ? diagnosis.value.trim() : '';
   const partsValue = partsName ? partsName.value.trim() : '';
+  const itemId = partsItem && partsItem.value ? parseInt(partsItem.value, 10) : null;
+  const itemQty = partsQty && partsQty.value ? parseInt(partsQty.value, 10) : null;
 
   if (!diagnosisValue) {
     showToast('يرجى إدخال التشخيص قبل طلب القطعة', 'warning');
+    return;
+  }
+
+  if (itemId && (!itemQty || itemQty <= 0)) {
+    showToast('يرجى تحديد الكمية المطلوبة للصنف المختار', 'warning');
     return;
   }
 
@@ -482,6 +573,8 @@ async function requestMaintenanceParts() {
         diagnosis: diagnosisValue,
         parts_required: true,
         parts_notes: partsValue || 'تم طلب قطعة غيار من الفني.',
+        item_id: itemId,
+        quantity_requested: itemQty
       })
     });
     if (updated) {

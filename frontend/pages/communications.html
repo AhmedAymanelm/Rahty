@@ -1,3 +1,29 @@
+<style>
+  .comm-layout {
+    display: flex; gap: 20px; height: calc(100vh - 120px); align-items: stretch;
+  }
+  .comm-sidebar {
+    width: 320px; background: var(--dark3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .comm-chat-area {
+    flex: 1; background: var(--dark3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; overflow: hidden;
+  }
+  @media (max-width: 768px) {
+    .comm-layout {
+      flex-direction: column;
+      height: calc(100vh - 140px); /* Adjust for mobile header slightly */
+    }
+    .comm-sidebar {
+      width: 100%;
+      flex: 0 0 250px; /* Fixed height for sidebar on mobile */
+    }
+    .comm-chat-area {
+      width: 100%;
+      flex: 1;
+    }
+  }
+</style>
+
 <div class="pg" id="p-communications">
   <div class="pg-head" style="display:flex; justify-content:space-between; align-items:center;">
     <div>
@@ -6,10 +32,10 @@
     </div>
   </div>
 
-  <div class="pg-body" style="display:flex; gap:20px; height:calc(100vh - 120px); align-items:stretch;">
+  <div class="pg-body comm-layout">
     
     <!-- Contacts Sidebar (Right in RTL) -->
-    <div style="width:320px; background:var(--dark3); border-radius:12px; border:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; overflow:hidden;">
+    <div class="comm-sidebar">
         <div style="padding:15px 20px; border-bottom:1px solid rgba(255,255,255,0.05);">
             <h3 style="margin:0; font-size:1.1rem;">جهات التواصل</h3>
         </div>
@@ -23,7 +49,7 @@
     </div>
 
     <!-- Chat Area (Left in RTL) -->
-    <div style="flex:1; background:var(--dark3); border-radius:12px; border:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; overflow:hidden;">
+    <div class="comm-chat-area">
         <div style="padding:15px 20px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content: space-between; align-items: center;">
             <h3 style="margin:0; font-size:1.1rem; display:flex; align-items:center; gap:8px;" id="comm-chat-title">💬 اختر موظفاً للتواصل</h3>
         </div>

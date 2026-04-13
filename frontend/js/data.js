@@ -44,10 +44,11 @@ const NAV = {
   supervisor: [
     { sec: 'فندقي', items: [
       { id: 'p-sup-dash',  ico: '🏢', lbl: 'لوحة المشرف' },
-      { id: 'p-expense-orders', ico: '🧾', lbl: 'سند شراء' },
+      { id: 'p-warehouse-manager', ico: '🏬', lbl: 'اعتمادات الفندق' },
       { id: 'p-supervisor-warehouse', ico: '📦', lbl: 'المستودع' },
       { id: 'p-users-mgmt',ico: '👥', lbl: 'إدارة الموظفين' },
       { id: 'p-leaves-contracts', ico: '🏖️', lbl: 'الإجازات' },
+      { id: 'p-rc-prices', ico: '🏷️', lbl: 'أسعار المنافسين' },
       { id: 'p-sup-tasks', ico: '📌', lbl: 'مهامي' },
       { id: 'p-settings',   ico: '⚙️', lbl: 'الإعدادات' },
     ]},
@@ -58,7 +59,6 @@ const NAV = {
   superfv: [
     { sec: 'عمليات', items: [
       { id: 'p-sup-dash',  ico: '🎯', lbl: 'لوحة السوبر فايزر' },
-      { id: 'p-expense-orders', ico: '🧾', lbl: 'سند شراء' },
       { id: 'p-supervisor-warehouse', ico: '📦', lbl: 'طلب مستودع' },
       { id: 'p-warehouse-manager', ico: '🏬', lbl: 'مسؤول المستودع' },
       { id: 'p-sup-tasks', ico: '📌', lbl: 'مهامي' },
@@ -90,8 +90,8 @@ const NAV = {
   ],
   reception: [
     { sec: 'عملي', items: [
+      { id: 'p-cl-rooms',  ico: '🏠', lbl: 'حالة الغرف' },
       { id: 'p-rc-report', ico: '📝', lbl: 'تقرير الاستقبال' },
-      { id: 'p-rc-prices', ico: '🏷️', lbl: 'أسعار المنافسين' },
       { id: 'p-settings',  ico: '⚙️', lbl: 'الإعدادات' },
     ]},
     { sec: 'المحادثات', items: [
