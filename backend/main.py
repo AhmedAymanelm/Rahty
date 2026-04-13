@@ -176,7 +176,13 @@ def root():
 
 @app.get("/", include_in_schema=False)
 def root_page():
-    return FileResponse(str(frontend_dir / "index.html"))
+    return FileResponse(
+        str(frontend_dir / "index.html"),
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+        },
+    )
 
 
 @app.get("/dashboard", include_in_schema=False)
